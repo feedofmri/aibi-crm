@@ -5,7 +5,10 @@ import { requireRole } from "../../middleware/authenticate.js";
 import { validateBody } from "../../middleware/validate.js";
 import { aiLimiter } from "../intake/intake.routes.js";
 
-const settingsSchema = z.object({ mode: z.enum(["manual", "automatic"]) });
+const settingsSchema = z
+  .object({ mode: z.enum(["manual", "automatic"]), autoReply: z.enum(["off", "safe"]) })
+  .partial()
+  .refine((v) => v.mode || v.autoReply, "Choose a setting to change.");
 
 const processSchema = z.object({
   message: z.string().trim().min(1, "Paste the enquiry message.").max(8000),

@@ -1,12 +1,12 @@
 import { useState, type DragEvent } from "react";
-import { GripVertical, MessagesSquare } from "lucide-react";
+import { Clock, GripVertical, MessagesSquare } from "lucide-react";
 import { Avatar, Badge, useToast } from "@/components/ui";
 import { useMeta, useUpdateLead } from "@/hooks/queries";
 import { useContactSheet } from "@/hooks/useContactSheet";
 import { cx } from "@/lib/cx";
-import { STAGE_TONE, lastMessage, splitName } from "@/lib/lead";
+import { STAGE_TONE, followUpState, inboundMessages, lastMessage, splitName } from "@/lib/lead";
 import type { Lead, Stage } from "@/types";
-import { ChannelIcon, FollowUpBadge } from "@/features/leads/LeadBits";
+import { ChannelIcon } from "@/features/leads/LeadBits";
 import styles from "./KanbanBoard.module.css";
 
 const DRAG_TYPE = "application/x-biai-lead";
@@ -80,7 +80,7 @@ export function KanbanBoard({ leads }: { leads: Lead[] }) {
               ))}
               {items.length === 0 && (
                 <div className={cx(styles.dropHint, dragging && styles.dropHintActive)}>
-                  {dragging ? `Move to ${stage}` : "No contacts"}
+                  {dragging ? `Drop to move to ${stage}` : "Drag a card here"}
                 </div>
               )}
             </div>
@@ -101,6 +101,7 @@ interface LeadCardProps {
 function LeadCard({ lead, dragging, onDragStart, onDragEnd }: LeadCardProps) {
   const { open } = useContactSheet();
   const message = lastMessage(lead);
+  const inbound = inboundMessages(lead);
   const { primary, secondary } = splitName(lead.name);
 
   return (
@@ -128,37 +129,37 @@ function LeadCard({ lead, dragging, onDragStart, onDragEnd }: LeadCardProps) {
       </div>
       {secondary && <p className={styles.company}>{secondary}</p>}
 
+      {message && <p className={styles.preview}>{message.text}</p>}
+
       <div className={styles.tags}>
-        {lead.program === "Unspecified" ? (
-          <Badge tone="warning" size="sm" variant="outline">
-            Programme to confirm
-          </Badge>
-        ) : (
-          <Badge tone="brand" size="sm" variant="outline">
-            {lead.program}
-          </Badge>
-        )}
-        {!lead.phone && (
-          <Badge tone="neutral" size="sm" variant="outline">
-            No phone
-          </Badge>
-        )}
         {lead.priority === "Urgent" && (
           <Badge tone="danger" size="sm">
             Urgent
           </Badge>
         )}
+        {lead.program === "Unspecified" ? (
+          <Badge tone="warning" size="sm" variant="outline">
+            Programme to confirm
+          </Badge>
+        ) : (
+          <Badge tone="neutral" size="sm" variant="outline">
+            {lead.program}
+          </Badge>
+        )}
+        {!lead.phone && (
+          <Badge tone="warning" size="sm" variant="outline">
+            No phone
+          </Badge>
+        )}
       </div>
 
-      {message && <p className={styles.preview}>{message.text}</p>}
-
       <footer className={styles.cardFoot}>
-        <FollowUpBadge lead={lead} size="sm" />
+        <DueLabel lead={lead} />
         <span className={styles.footRight}>
-          {lead.messages.length > 1 && (
-            <span className={styles.thread} title={`${lead.messages.length} messages`}>
+          {inbound.length > 1 && (
+            <span className={styles.thread} title={`${inbound.length} messages`}>
               <MessagesSquare />
-              {lead.messages.length}
+              {inbound.length}
             </span>
           )}
           {lead.owner ? (
@@ -166,10 +167,24 @@ function LeadCard({ lead, dragging, onDragStart, onDragEnd }: LeadCardProps) {
               <Avatar name={lead.owner} size="xs" />
             </span>
           ) : (
-            <span className={styles.unassigned} title="Unassigned" />
+            <span className={styles.unassigned}>Unassigned</span>
           )}
         </span>
       </footer>
     </article>
+  );
+}
+
+/** Quiet, colour-coded text instead of a pill: readable at a glance without
+ *  turning a column of overdue cards into a wall of red. */
+function DueLabel({ lead }: { lead: Lead }) {
+  const state = followUpState(lead);
+  if (state.kind === "none") return <span />;
+  const label = state.overdueDays > 0 ? `${state.overdueDays}d overdue` : state.label;
+  return (
+    <span className={styles.due} data-tone={state.tone} title={state.label}>
+      <Clock aria-hidden />
+      {label}
+    </span>
   );
 }

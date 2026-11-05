@@ -70,8 +70,14 @@ export function App() {
     try {
       const response = await channelApi.send({ message: text, channel, name, phone });
       setResult(response);
-      if (showReply && response.reply)
-        setMessages((all) => [...all, { id: nextId.current++, from: "draft", text: response.reply, at: new Date() }]);
+      const { reply } = response;
+      if (reply.status === "sent")
+        setMessages((all) => [...all, { id: nextId.current++, from: "agent", text: reply.text, at: new Date() }]);
+      else if (showReply && reply.text)
+        setMessages((all) => [
+          ...all,
+          { id: nextId.current++, from: "draft", text: reply.text, at: new Date(), note: reply.reason },
+        ]);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Try again.");
     } finally {
@@ -108,7 +114,6 @@ export function App() {
 
       <main className={styles.main}>
         <section className={styles.intro}>
-          <span className="eyebrow">Channel simulator</span>
           <h1>Write in like a prospective student.</h1>
           <p>Send a message on any channel and watch it arrive in the admissions CRM, ready for the team to reply.</p>
         </section>
@@ -143,7 +148,7 @@ export function App() {
       </main>
 
       <footer className={styles.footer}>
-        <span>BIAI Admissions · Channel simulator</span>
+        <span>BIAI Admissions · Simulator</span>
         <span>Messages stay inside the CRM. Nothing is sent to WhatsApp or Facebook.</span>
       </footer>
     </div>

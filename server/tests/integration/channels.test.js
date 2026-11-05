@@ -50,7 +50,8 @@ describe("inbound channel API (channel simulator site)", { skip }, () => {
     assert.equal(res.body.contact.program, "Fellowship");
     assert.match(res.body.contact.crmUrl, /\/enquiries\?contact=/);
     assert.equal(res.body.contact.activity, undefined, "no internal CRM history is exposed");
-    assert.ok(res.body.reply);
+    assert.ok(res.body.reply.text);
+    assert.equal(res.body.reply.status, "held", "auto-reply is off by default");
 
     const again = await client.post("/api/channels/inbound", { message: "Any update?", channel: "WhatsApp", phone: "01912345678" }, KEY);
     assert.equal(again.status, 200);

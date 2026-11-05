@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, MessageCircle, Save, Sparkles } from "lucide-react";
+import { CheckCheck, Copy, MessageCircle, Save, Sparkles } from "lucide-react";
 import { leadsApi } from "@/api/endpoints";
 import { Badge, Button, Card, CardHeader, Textarea, buttonClass, useToast } from "@/components/ui";
 import { useReplaceLead } from "@/hooks/queries";
@@ -11,7 +11,7 @@ export function ReplyComposer({ lead }: { lead: Lead }) {
   const replace = useReplaceLead();
   const toast = useToast();
   const [text, setText] = useState(lead.draft);
-  const [busy, setBusy] = useState<"draft" | "save" | null>(null);
+  const [busy, setBusy] = useState<"draft" | "save" | "sent" | null>(null);
 
   useEffect(() => setText(lead.draft), [lead.draft]);
 
@@ -43,6 +43,19 @@ export function ReplyComposer({ lead }: { lead: Lead }) {
     }
   }
 
+  /** Record the reply (as edited) as sent: it joins the conversation and counts as contact. */
+  async function markSent() {
+    setBusy("sent");
+    try {
+      replace(await leadsApi.recordReply(lead.id, text));
+      toast.success("Reply added to the conversation and logged as contact.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
@@ -56,7 +69,7 @@ export function ReplyComposer({ lead }: { lead: Lead }) {
     <Card>
       <CardHeader
         title="Reply"
-        description={`Draft in ${lead.language}. Nothing is sent from here.`}
+        description={`Draft in ${lead.language}. Send it from WhatsApp or by phone, then mark it as sent.`}
         action={
           <Badge tone={lead.draftMode === "live" ? "success" : lead.draftMode === "human-reviewed" ? "info" : "neutral"} variant="outline">
             {DRAFT_LABEL[lead.draftMode] ?? lead.draftMode}
@@ -86,8 +99,18 @@ export function ReplyComposer({ lead }: { lead: Lead }) {
             <span>Open in WhatsApp</span>
           </a>
         )}
-        <Button size="sm" variant="primary" icon={<Save />} disabled={!dirty} loading={busy === "save"} onClick={save}>
-          Save reply
+        <Button size="sm" icon={<Save />} disabled={!dirty} loading={busy === "save"} onClick={save}>
+          Save draft
+        </Button>
+        <Button
+          size="sm"
+          variant="primary"
+          icon={<CheckCheck />}
+          disabled={!text.trim() || lead.route === "Spam"}
+          loading={busy === "sent"}
+          onClick={markSent}
+        >
+          Mark as sent
         </Button>
       </div>
       <p className={styles.hint}>

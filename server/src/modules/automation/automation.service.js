@@ -22,8 +22,14 @@ function defaultNextAction(route) {
 export function createAutomationService({ pool, ai, leadsService, samples }) {
   const settings = () => repo.getSettings(pool);
 
-  async function saveSettings({ mode }) {
-    return repo.saveSettings(pool, { mode });
+  /** Partial update: { mode?, autoReply? }. */
+  async function saveSettings(changes) {
+    const current = await settings();
+    const next = {
+      mode: changes.mode ?? current.mode,
+      autoReply: changes.autoReply ?? current.autoReply,
+    };
+    return repo.saveSettings(pool, next);
   }
 
   const listJobs = () => repo.list(pool);
@@ -39,6 +45,10 @@ export function createAutomationService({ pool, ai, leadsService, samples }) {
       (await leadsRepo.findIdByPhone(pool, normalizePhone(result.phone || "")));
     if (existing) reasons.push("Matches an existing contact");
     if (result.mode === "heuristic") reasons.push("Rule-based extraction (no live AI): check every field");
+    if (result.mode === "live" && result.confidence && result.confidence !== "high")
+      reasons.push(`AI confidence is ${result.confidence}`);
+    if (result.urgent) reasons.push("Marked urgent");
+    for (const violation of result.policy || []) reasons.push(`Reply check: ${violation.label.toLowerCase()}`);
     return reasons;
   }
 
@@ -46,7 +56,7 @@ export function createAutomationService({ pool, ai, leadsService, samples }) {
     validateLead({ ...result, status: "New", owner: "", notes: "", nextFollowUp: "" });
     const author = reviewer ? reviewer.name : "Automation";
     const saved = await leadsService.ingest(
-      { ...job.input, ...result, applyReview: Boolean(reviewer) },
+      { ...job.input, ...result, priority: result.urgent ? "Urgent" : "Normal", applyReview: Boolean(reviewer) },
       author,
     );
     const lead = saved.lead;
@@ -95,7 +105,9 @@ export function createAutomationService({ pool, ai, leadsService, samples }) {
     if (!job) return repo.findByKey(pool, key); // already processed (or processing): reuse it
 
     try {
-      const result = await ai.analyze({ ...input, allowHeuristic: true });
+      const known = input.phone ? await leadsService.findByPhone(input.phone) : null;
+      const context = ai.contextFromLead ? ai.contextFromLead(known) : null;
+      const result = await ai.analyze({ ...input, context, allowHeuristic: true });
       const reasons = await reasonsFor(result, input);
       if (mode === "manual" || reasons.length)
         return repo.update(pool, job.id, { status: "Pending", result, reasons });

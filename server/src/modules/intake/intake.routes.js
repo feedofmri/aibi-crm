@@ -44,7 +44,8 @@ export function intakeRoutes({ leadsService, ai, samples }) {
 
   /** Extract structured details and a draft reply. Nothing is saved. */
   router.post("/analyze", aiLimiter, validateBody(analyzeSchema), async (req, res) => {
-    const analysis = await ai.analyze({ ...req.body, allowHeuristic: true });
+    const known = await leadsService.findByPhone(ai.extractPhone(req.body.message, req.body.phone));
+    const analysis = await ai.analyze({ ...req.body, context: ai.contextFromLead(known), allowHeuristic: true });
     res.json({ analysis });
   });
 

@@ -7,9 +7,11 @@ import styles from "./ChatWindow.module.css";
 
 export interface ChatMessage {
   id: number;
-  from: "customer" | "draft";
+  /** customer = the prospect; agent = BIAI's automatic reply; draft = a held suggestion. */
+  from: "customer" | "agent" | "draft";
   text: string;
   at: Date;
+  note?: string;
 }
 
 interface ChatWindowProps {
@@ -95,8 +97,9 @@ export function ChatWindow({ channel, messages, draft, sending, disabled, error,
                 <div className={styles.bubble} data-from={m.from}>
                   <p>{m.text}</p>
                   <time className={styles.time}>
-                    {m.from === "draft" ? `Suggested reply · ${time(m.at)}` : time(m.at)}
+                    {m.from === "draft" ? `Held for the team · ${time(m.at)}` : m.from === "agent" ? `Auto-reply · ${time(m.at)}` : time(m.at)}
                   </time>
+                  {m.note && <span className={styles.note}>{m.note}</span>}
                 </div>
               </div>
             ))}

@@ -9,7 +9,14 @@ interface ResultPanelProps {
   result: InboundResult | null;
 }
 
-/** How the CRM filed the latest message. */
+const MODE_LABEL: Record<InboundResult["analysis"]["mode"], string> = {
+  live: "Live AI",
+  sample: "Reviewed sample",
+  heuristic: "Rules (no live AI)",
+  manual: "Manual",
+};
+
+/** How the CRM filed the latest message, and what happened to the reply. */
 export function ResultPanel({ sending, result }: ResultPanelProps) {
   return (
     <div className={`${panel.column} ${styles.column}`}>
@@ -23,6 +30,16 @@ export function ResultPanel({ sending, result }: ResultPanelProps) {
 
         {result && !sending ? (
           <>
+            <div className={styles.decision} data-status={result.reply.status}>
+              <strong>
+                {result.reply.status === "sent"
+                  ? "Replied automatically"
+                  : result.reply.status === "held"
+                    ? "Reply held for the team"
+                    : "No reply"}
+              </strong>
+              {result.reply.reason && <span>{result.reply.reason}</span>}
+            </div>
             <dl className={styles.facts}>
               <div>
                 <dt>Name</dt>
@@ -45,10 +62,24 @@ export function ResultPanel({ sending, result }: ResultPanelProps) {
                 <dd>{result.contact.language}</dd>
               </div>
               <div>
+                <dt>Priority</dt>
+                <dd>{result.contact.priority}</dd>
+              </div>
+              <div>
+                <dt>AI confidence</dt>
+                <dd>{result.analysis.mode === "live" ? (result.analysis.confidence ?? "—") : MODE_LABEL[result.analysis.mode]}</dd>
+              </div>
+              <div>
                 <dt>Messages</dt>
                 <dd>{result.contact.messages}</dd>
               </div>
             </dl>
+            {result.contact.nextAction && (
+              <p className={styles.next}>
+                <span>Next action</span>
+                {result.contact.nextAction}
+              </p>
+            )}
             <a className={styles.open} href={result.contact.crmUrl} target="_blank" rel="noopener noreferrer">
               View in CRM
               <ArrowUpRight />

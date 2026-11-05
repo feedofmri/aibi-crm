@@ -86,7 +86,11 @@ export function whatsappUrl(phone: string, text = "") {
   return `https://wa.me/${international}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 }
 
-export const lastMessage = (lead: Lead) => lead.messages[lead.messages.length - 1];
+/** Messages the customer sent (excludes BIAI's replies). */
+export const inboundMessages = (lead: Lead) => lead.messages.filter((m) => m.direction !== "outbound");
+
+/** The customer's latest message. */
+export const lastMessage = (lead: Lead) => inboundMessages(lead).at(-1);
 
 export function flags(lead: Lead) {
   const result: string[] = [];
