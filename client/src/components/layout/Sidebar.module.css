@@ -95,6 +95,12 @@
   color: var(--brand-500);
 }
 
+.link .external {
+  width: 14px;
+  height: 14px;
+  color: var(--gray-400);
+}
+
 .linkLabel {
   flex: 1;
   min-width: 0;

@@ -95,6 +95,8 @@ export interface Meta {
   followUpHours: number;
   ai: { mode: "live" | "rules"; provider: string | null; model: string | null };
   database: string;
+  /** The separately hosted channel simulator website. */
+  simulatorUrl: string;
   samples: Sample[];
 }
 

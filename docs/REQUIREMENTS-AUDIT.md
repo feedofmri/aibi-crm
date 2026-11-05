@@ -9,7 +9,7 @@
 | Supplied 20 messages | All 20 kept across 19 contacts; re-import duplicates nothing |
 | Optional 48-hour reminders | Follow-ups page grouped by urgency, scheduled dates, owner, next action, Log contact |
 | Optional AI weekly summary | Calculated totals plus three AI (or rule-based) priorities, copyable |
-| Code/workflow | Repository: `client/` (React + TypeScript), `server/` (Express + PostgreSQL), tests, Docker |
+| Code/workflow | Repository: `client/` (CRM, React + TypeScript), `simulator/` (channel simulator site), `server/` (Express + PostgreSQL), tests, Docker |
 | Half-page note | `SUBMISSION-NOTE.md` |
 | Loom up to five minutes | `LOOM-SCRIPT.md`; recording by the applicant |
 | Working link if available | Runs locally; hosting steps in `DEPLOYMENT.md` |
@@ -18,7 +18,7 @@
 
 - Team sign-in with roles enforced on the API (Admin, Admissions, Support, Sales).
 - Automation mode: complete sales enquiries saved automatically, exceptions held for review.
-- Channel simulator to demonstrate inbound handling without a real channel.
+- Channel simulator as a separate website, posting to an authenticated inbound channel API: the same shape a real WhatsApp or Facebook webhook would use.
 - Restore-sample-data action for repeatable demos.
 - Responsive layout for phones.
 

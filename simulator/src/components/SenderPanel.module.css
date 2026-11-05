@@ -1,0 +1,141 @@
+.channels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease), background-color var(--duration-fast) var(--ease);
+}
+
+.channel:last-child {
+  grid-column: span 2;
+}
+
+.channel svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--color-text-tertiary);
+}
+
+.channel:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.channel:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.channel[data-selected],
+.channel[data-selected]:hover {
+  border-color: var(--brand-500);
+  background: var(--brand-25);
+  color: var(--brand-700);
+  box-shadow: inset 0 0 0 1px var(--brand-500);
+}
+
+.channel[data-selected] svg {
+  color: var(--brand-600);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--brand-500);
+}
+
+.samplesHead {
+  padding: 18px 20px 10px;
+}
+
+.samples {
+  max-height: 360px;
+  margin: 0;
+  padding: 0 8px 8px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.sample {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  text-align: left;
+}
+
+.sample:hover {
+  background: var(--color-surface-sunken);
+}
+
+.sample:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.sample > svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  color: var(--color-text-tertiary);
+}
+
+.sampleText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sampleText strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.sampleText span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}

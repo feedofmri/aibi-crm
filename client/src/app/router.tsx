@@ -7,7 +7,6 @@ import { WeeklyBriefPage } from "@/features/brief/WeeklyBriefPage";
 import { EnquiriesPage } from "@/features/enquiries/EnquiriesPage";
 import { FollowUpsPage } from "@/features/followups/FollowUpsPage";
 import { PipelinePage } from "@/features/pipeline/PipelinePage";
-import { SimulatorPage } from "@/features/simulator/SimulatorPage";
 import { TeamPage } from "@/features/team/TeamPage";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -34,7 +33,6 @@ export const router = createBrowserRouter([
       { path: "follow-ups", element: <FollowUpsPage /> },
       { path: "brief", element: <WeeklyBriefPage /> },
       { path: "automation", element: <AutomationPage /> },
-      { path: "simulator", element: <SimulatorPage /> },
       { path: "team", element: <TeamPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],

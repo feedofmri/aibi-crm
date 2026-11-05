@@ -2,26 +2,29 @@
   "name": "biai-crm",
   "version": "2.0.0",
   "private": true,
-  "description": "BIAI admissions CRM: React client, Node.js API and PostgreSQL.",
+  "description": "BIAI admissions CRM (React client, Node.js API, PostgreSQL) and a separate channel simulator website.",
   "workspaces": [
     "server",
-    "client"
+    "client",
+    "simulator"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "concurrently -k -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build -w client",
+    "dev": "concurrently -k -n server,crm,simulator -c blue,magenta,green \"npm run dev -w server\" \"npm run dev -w client\" \"npm run dev -w simulator\"",
+    "build": "npm run build -w client && npm run build -w simulator",
     "start": "npm start -w server",
     "test": "npm test -w server",
-    "typecheck": "npm run typecheck -w client",
-    "lint": "npm run lint -w client",
+    "typecheck": "npm run typecheck -w client && npm run typecheck -w simulator",
+    "lint": "npm run typecheck",
     "check": "npm run typecheck && npm run build && npm test",
     "db:up": "docker compose up -d db",
     "db:migrate": "npm run db:migrate -w server",
     "db:seed": "npm run db:seed -w server",
-    "db:reset": "npm run db:reset -w server"
+    "db:reset": "npm run db:reset -w server",
+    "dev:crm": "concurrently -k -n server,crm -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "preview:simulator": "npm run preview -w simulator"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

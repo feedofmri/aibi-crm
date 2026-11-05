@@ -25,6 +25,20 @@ export const config = Object.freeze({
   usingDevSecret: !env.JWT_SECRET,
   sessionCookie: "biai_session",
   sessionTtlSeconds: 7 * 24 * 60 * 60,
+  /**
+   * Shared secret for inbound channel traffic (the channel simulator site, or
+   * a future WhatsApp/Facebook webhook). Without it in production the
+   * inbound endpoint is disabled.
+   */
+  channelKey: env.CHANNEL_KEY || (isProduction ? "" : "dev-channel-key"),
+  /** Browser origins allowed to call the inbound endpoint (the simulator site). */
+  channelOrigins: (env.CHANNEL_ALLOWED_ORIGINS || (isProduction ? "" : "http://localhost:5174,http://127.0.0.1:5174"))
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean),
+  /** Public URLs used to link the two sites to each other. */
+  crmUrl: env.CRM_PUBLIC_URL || "http://localhost:5173",
+  simulatorUrl: env.SIMULATOR_PUBLIC_URL || "http://localhost:5174",
   /** Demo accounts are seeded with this password; shown on the login screen. */
   demoPassword: "Admin123!",
   timezone: "Asia/Dhaka",

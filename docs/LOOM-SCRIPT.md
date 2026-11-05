@@ -21,6 +21,7 @@ Show the pipeline: 20 supplied messages → 19 contacts. No invented customers.
 2. **Pipeline (1:20–1:45).** Drag a card from New to Contacted. Open it: the activity history shows who moved it and when. Show the WhatsApp button (pre-filled draft): it opens a chat; the app sends nothing itself.
 3. **Messy data (1:45–2:20).** All enquiries → open **Rafi**: two messages, one contact (phone matching; blank phones never merge). Open **Farzana**: says she paid → Support queue with a “human review required” callout, *not* marked Paid.
 4. **Follow-ups (2:20–2:40).** Grouped Urgent → Support → Sales; 48-hour rule; Paid/Lost/spam/careers excluded. **Log contact** only after actually reaching the person.
+   *Optional, if you have time:* open the **channel simulator** (separate site, http://localhost:5174, also linked in the CRM sidebar), send a WhatsApp message as a new prospect, then show it appear on the CRM pipeline. Say it uses an authenticated inbound API, the same shape a real WhatsApp webhook would use, and nothing is sent back.
 5. **Weekly brief (2:40–3:00).** Week ending 1 Nov 2026. Totals are calculated by code; AI (or the labelled rule-based fallback) only writes the three priorities.
 
 ## 3. 3:00–4:15 — How I used AI to build it, and what I decided

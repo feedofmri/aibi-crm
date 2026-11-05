@@ -134,13 +134,6 @@ describe("contacts, intake and follow-ups", { skip }, () => {
     assert.equal(empty.totals.messages, 0);
   });
 
-  test("the simulator saves a typed message like a real enquiry", async () => {
-    const res = await admin.post("/api/simulator/messages", { message: "Fellowship kobe shuru?", channel: "WhatsApp", name: "Nadia", phone: "01912345678" });
-    assert.equal(res.status, 200);
-    assert.equal(res.body.created, true);
-    assert.equal(res.body.lead.program, "Fellowship");
-  });
-
   test("admins can restore the sample data", async () => {
     assert.equal((await admin.post("/api/admin/reset-demo")).body.imported, 20);
     assert.equal((await admin.get("/api/leads")).body.leads.length, 19);

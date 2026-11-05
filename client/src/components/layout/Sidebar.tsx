@@ -5,6 +5,7 @@ import {
   BarChart3,
   BellRing,
   ChevronsUpDown,
+  ExternalLink,
   Inbox,
   KanbanSquare,
   LogOut,
@@ -62,7 +63,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       title: "Tools",
       items: [
         { to: "/automation", label: "Automation", icon: <Workflow />, count: counts.review, tone: "warning" },
-        { to: "/simulator", label: "Channel simulator", icon: <MessagesSquare /> },
         { to: "/team", label: "Team", icon: <Users /> },
       ],
     },
@@ -109,6 +109,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   </NavLink>
                 </li>
               ))}
+              {section.title === "Tools" && meta.data?.simulatorUrl && (
+                <li>
+                  <a className={styles.link} href={meta.data.simulatorUrl} target="_blank" rel="noopener noreferrer">
+                    <MessagesSquare />
+                    <span className={styles.linkLabel}>Channel simulator</span>
+                    <ExternalLink className={styles.external} aria-label="opens in a new tab" />
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         ))}

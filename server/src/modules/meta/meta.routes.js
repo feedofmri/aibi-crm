@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { config } from "../../config/env.js";
 import { CHANNELS, FOLLOW_UP_HOURS, LANGUAGES, PROGRAMS, ROLES, ROUTES, STAGES } from "../../domain/lead.js";
 
 /** Reference data and runtime capabilities the client needs to render forms. */
@@ -18,6 +19,7 @@ export function metaRoutes({ ai, samples }) {
       followUpHours: FOLLOW_UP_HOURS,
       ai: live ? { mode: "live", provider, model } : { mode: "rules", provider: null, model: null },
       database: "PostgreSQL",
+      simulatorUrl: config.simulatorUrl,
       samples: samples.map((s) => ({
         id: s.id,
         channel: s.channel,

@@ -3,6 +3,7 @@ node_modules/
 
 # Builds
 client/dist/
+simulator/dist/
 *.tsbuildinfo
 
 # Environment and secrets

@@ -9,6 +9,7 @@ import { sameOrigin } from "./middleware/same-origin.js";
 import { adminRoutes } from "./modules/admin/admin.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { createAuthService } from "./modules/auth/auth.service.js";
+import { channelsRoutes } from "./modules/channels/channels.routes.js";
 import { automationRoutes } from "./modules/automation/automation.routes.js";
 import { createAutomationService } from "./modules/automation/automation.service.js";
 import { intakeRoutes } from "./modules/intake/intake.routes.js";
@@ -17,7 +18,6 @@ import { createLeadsService } from "./modules/leads/leads.service.js";
 import { metaRoutes } from "./modules/meta/meta.routes.js";
 import { reportsRoutes } from "./modules/reports/reports.routes.js";
 import { createReportsService } from "./modules/reports/reports.service.js";
-import { simulatorRoutes } from "./modules/simulator/simulator.routes.js";
 import { usersRoutes } from "./modules/users/users.routes.js";
 import * as defaultAi from "./services/ai/ai.service.js";
 import { samples } from "./services/ai/samples.js";
@@ -61,6 +61,9 @@ export function createApp(services, { serveClient = true } = {}) {
     await services.pool.query("SELECT 1");
     res.json({ status: "ok" });
   });
+  // Inbound channels authenticate with a channel key (and allow the simulator
+  // site's origin), so they sit before the staff session and same-origin checks.
+  api.use("/channels", channelsRoutes(services));
   api.use(sameOrigin);
   api.use("/auth", authRoutes({ authService: services.authService, authenticate: requireAuth }));
 
@@ -72,7 +75,6 @@ export function createApp(services, { serveClient = true } = {}) {
   api.use("/intake", intakeRoutes(services));
   api.use("/automation", automationRoutes(services));
   api.use("/reports", reportsRoutes(services));
-  api.use("/simulator", simulatorRoutes(services));
   api.use("/admin", adminRoutes(services));
   api.use(notFoundHandler);
 

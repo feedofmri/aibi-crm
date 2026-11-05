@@ -1,6 +1,6 @@
 # BIAI Admissions CRM
 
-An admissions and enquiry CRM for Bangladesh AI (BIAI). It turns WhatsApp, Facebook, website and phone enquiries in Bangla, Banglish and English into reviewed contacts, drafts a reply in the sender's language, moves people through a five-stage pipeline and makes sure nobody waits more than 48 hours for a follow-up.
+An admissions and enquiry CRM for Bangladesh AI (BIAI), plus a separate **channel simulator** website for sending test enquiries into it. It turns WhatsApp, Facebook, website and phone enquiries in Bangla, Banglish and English into reviewed contacts, drafts a reply in the sender's language, moves people through a five-stage pipeline and makes sure nobody waits more than 48 hours for a follow-up.
 
 Built on the 20 supplied fictional messages (19 contacts). Prototype for BIAI's Round 2 task.
 
@@ -12,7 +12,8 @@ Built on the 20 supplied fictional messages (19 contacts). Prototype for BIAI's 
 
 | Stack | |
 |---|---|
-| **Client** | React 19, TypeScript, Vite, React Router, TanStack Query, CSS Modules with design tokens, lucide icons |
+| **CRM client** | React 19, TypeScript, Vite, React Router, TanStack Query, CSS Modules with design tokens, lucide icons |
+| **Channel simulator** | Separate React + TypeScript website that posts to the CRM's inbound channel API with a channel key |
 | **Server** | Node.js 22+, Express 5, layered modules (routes → services → repositories), zod validation, helmet, rate limiting |
 | **Database** | PostgreSQL 16 with versioned SQL migrations |
 | **Auth** | Email + password (bcrypt), JWT session in an httpOnly SameSite cookie, role checks on the API |
@@ -41,7 +42,7 @@ npm run dev
 
 Already running PostgreSQL? Skip `npm run db:up`, create a `biai_crm` database and set `DATABASE_URL` in `.env`.
 
-Open http://localhost:5173 and pick a demo account. The API runs on :4000; Vite proxies `/api` to it. On first start the server applies migrations, creates the demo team and imports the 20 sample enquiries.
+This starts three processes: the API on :4000, the **CRM** on http://localhost:5173 and the **channel simulator** on http://localhost:5174. Open the CRM and pick a demo account; open the simulator in another tab and send a message to watch it arrive. Both sites proxy `/api` to the API in development. On first start the server applies migrations, creates the demo team and imports the 20 sample enquiries.
 
 **Demo accounts** (fictional, password `Admin123!`): `admin@biai.com.bd` (Admin), `tanvir@biai.com.bd` (Admissions), `ayesha@biai.com.bd` (Support), `rahim@biai.com.bd` (Sales).
 
@@ -66,7 +67,7 @@ Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker comp
 - **New enquiry:** paste a message (or pick a supplied sample) → extracted details and a draft reply → review and save. A matching phone number joins the existing contact; blank phones never merge.
 - **Weekly brief:** calculated totals for any seven Dhaka days, programme interest, support cases and three priorities (live AI or rules), copyable as text.
 - **Automation:** manual review, or automatic saving of complete new sales enquiries with every exception held for a person.
-- **Channel simulator:** type as a prospect on a simulated channel; the message is processed and saved like a real enquiry. Nothing is sent.
+- **Channel simulator (separate website):** write in as a prospective student on WhatsApp, Messenger, a Facebook comment, the website form or a call note. The message goes to the CRM's inbound channel API (authenticated with a channel key, not a staff login) and is extracted, routed and saved like a real enquiry. The drafted reply is shown in the chat but nothing is sent. Linked from the CRM sidebar.
 - **Team:** members and roles. Admins add members, delete contacts and restore the sample data.
 
 ### Deliberate boundaries
@@ -81,7 +82,7 @@ Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker comp
 
 ```
 aibi-crm/
-├── client/                      React + TypeScript web app
+├── client/                      CRM web app (React + TypeScript)
 │   ├── index.html
 │   ├── vite.config.ts           dev proxy /api → :4000, "@" alias
 │   └── src/
@@ -94,7 +95,7 @@ aibi-crm/
 │       ├── features/            one folder per product area
 │       │   ├── auth/            session provider, route guards, sign-in page
 │       │   ├── pipeline/        Kanban board and page
-│       │   ├── enquiries/  followups/  brief/  automation/  team/  simulator/
+│       │   ├── enquiries/  followups/  brief/  automation/  team/
 │       │   ├── contact/         contact panel: conversation, reply, details, activity
 │       │   ├── intake/          New enquiry dialog
 │       │   └── leads/           shared table, toolbar, filters and badges
@@ -102,6 +103,13 @@ aibi-crm/
 │       ├── lib/                 formatting (Asia/Dhaka), follow-up rules, helpers
 │       ├── styles/              design tokens and base styles
 │       └── types/               shared TypeScript types
+├── simulator/                   Channel simulator website (React + TypeScript, deployed separately)
+│   ├── .env.example             VITE_API_URL, VITE_CHANNEL_KEY
+│   └── src/
+│       ├── App.tsx              connection, state and layout
+│       ├── components/          SenderPanel, ChatWindow, ResultPanel
+│       ├── lib/                 inbound channel API client, channel metadata
+│       └── styles/              same design tokens as the CRM
 ├── server/                      Express API
 │   ├── src/
 │   │   ├── index.js             bootstrap: connect, migrate, seed, listen, graceful shutdown
@@ -109,7 +117,7 @@ aibi-crm/
 │   │   ├── config/env.js        validated configuration
 │   │   ├── db/                  pool, migration runner, migrations/*.sql, seed, CLI
 │   │   ├── middleware/          authentication, roles, validation, same-origin, errors
-│   │   ├── modules/             auth, users, leads, intake, automation, reports, simulator, meta, admin
+│   │   ├── modules/             auth, users, leads, intake, automation, reports, channels, meta, admin
 │   │   │                        (each: *.routes.js → *.service.js → *.repository.js)
 │   │   ├── domain/lead.js       business rules: stages, phone normalisation, 48-hour rule, validation
 │   │   ├── services/ai/         provider calls, prompts, reviewed samples, rule-based fallback
@@ -126,11 +134,12 @@ aibi-crm/
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | API (watch mode) and Vite dev server together |
-| `npm run build` | Type-check and build the client |
+| `npm run dev` | API (watch mode), CRM and channel simulator together |
+| `npm run dev:crm` | API and CRM only |
+| `npm run build` | Type-check and build the CRM and the simulator |
 | `npm start` | Production server: API + built client on :4000 |
 | `npm test` | Server unit and integration tests |
-| `npm run typecheck` | Client TypeScript check |
+| `npm run typecheck` | TypeScript check of both web apps |
 | `npm run check` | Type-check, build and test |
 | `npm run db:up` | Start PostgreSQL in Docker |
 | `npm run db:migrate` / `db:seed` / `db:reset` | Apply migrations / seed if empty / restore the 20 samples |
@@ -144,7 +153,7 @@ docker compose exec db createdb -U biai biai_crm_test
 
 ## API overview
 
-All routes are under `/api` and, except `/health` and `/auth/login`, need a signed-in session. Errors are `{ "error": { "message": "…" } }`.
+All routes are under `/api`. `/channels/*` authenticates with the `X-Channel-Key` header; everything else except `/health` and `/auth/login` needs a signed-in staff session. Errors are `{ "error": { "message": "…" } }`.
 
 | Method & path | Purpose | Role |
 |---|---|---|
@@ -159,7 +168,7 @@ All routes are under `/api` and, except `/health` and `/auth/login`, need a sign
 | `GET /automation`, `POST /automation/jobs`, `POST /automation/jobs/:id/review` | Automated intake | any |
 | `PUT /automation/settings` | Manual / automatic mode | Admin, Admissions |
 | `GET /reports/weekly?end=YYYY-MM-DD` | Weekly brief | any |
-| `POST /simulator/messages` | Simulated inbound message | any |
+| `GET /channels/info`, `POST /channels/inbound` | Inbound channel API used by the simulator site (CORS limited to `CHANNEL_ALLOWED_ORIGINS`) | channel key |
 | `GET /users`, `POST /users` | Team list; add a member | any / Admin |
 | `POST /admin/reset-demo` | Restore the 20 sample enquiries | Admin |
 

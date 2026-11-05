@@ -1,0 +1,133 @@
+/*
+ * Design tokens. Every colour, size, radius and shadow used by components
+ * comes from here, so the whole product stays visually consistent.
+ */
+
+@font-face {
+  font-family: "Inter";
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hind Siliguri";
+  src: url("../assets/fonts/hind-siliguri-bengali.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0980-09FF, U+200C-200D, U+25CC;
+}
+
+:root {
+  /* Typography */
+  --font-sans: "Inter", "Hind Siliguri", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.8125rem;   /* 13 */
+  --text-md: 0.875rem;    /* 14 */
+  --text-base: 0.9375rem; /* 15 */
+  --text-lg: 1.0625rem;   /* 17 */
+  --text-xl: 1.25rem;     /* 20 */
+  --text-2xl: 1.5rem;     /* 24 */
+  --text-3xl: 1.875rem;   /* 30 */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Neutrals (warm) */
+  --gray-0: #ffffff;
+  --gray-25: #fcfbf9;
+  --gray-50: #f7f5f2;
+  --gray-100: #f0ede8;
+  --gray-150: #e9e5df;
+  --gray-200: #e1dcd4;
+  --gray-300: #cdc6bc;
+  --gray-400: #a8a096;
+  --gray-500: #7d756c;
+  --gray-600: #5f5850;
+  --gray-700: #48423c;
+  --gray-800: #2e2a26;
+  --gray-900: #1c1917;
+
+  /* Brand (BIAI burnt orange) */
+  --brand-25: #fffaf6;
+  --brand-50: #fdf2ea;
+  --brand-100: #fbe2d1;
+  --brand-200: #f6c3a2;
+  --brand-500: #c4511a;
+  --brand-600: #ad4512;
+  --brand-700: #8c370e;
+
+  /* Semantic */
+  --blue-50: #eff6ff;  --blue-200: #c7dcfb;  --blue-600: #1d5fc9;  --blue-700: #194fa6;
+  --violet-50: #f4f1fe; --violet-200: #ddd3fb; --violet-600: #6941c6; --violet-700: #5a35ad;
+  --amber-50: #fff8eb; --amber-200: #fbdba7; --amber-600: #b25e09; --amber-700: #93480a;
+  --green-50: #edfbf3; --green-200: #b5ebcd; --green-600: #11804e; --green-700: #0b6b40;
+  --red-50: #fef2f1;   --red-200: #f9cbc6;   --red-600: #c4321f;   --red-700: #a12818;
+  --whatsapp: #128c7e;
+
+  /* Roles */
+  --color-bg: var(--gray-50);
+  --color-surface: var(--gray-0);
+  --color-surface-subtle: var(--gray-25);
+  --color-surface-sunken: var(--gray-100);
+  --color-border: var(--gray-200);
+  --color-border-subtle: var(--gray-150);
+  --color-border-strong: var(--gray-300);
+  --color-text: var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-tertiary: var(--gray-500);
+  --color-text-inverse: #ffffff;
+  --color-primary: var(--brand-500);
+  --color-primary-hover: var(--brand-600);
+  --color-primary-active: var(--brand-700);
+  --color-focus: rgba(196, 81, 26, 0.35);
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(28, 25, 23, 0.05);
+  --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.08), 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(28, 25, 23, 0.08), 0 2px 4px -2px rgba(28, 25, 23, 0.04);
+  --shadow-lg: 0 16px 32px -8px rgba(28, 25, 23, 0.16), 0 4px 8px -4px rgba(28, 25, 23, 0.06);
+  --shadow-xl: 0 24px 48px -12px rgba(28, 25, 23, 0.24);
+  --ring: 0 0 0 3px var(--color-focus);
+
+  /* Layout */
+  --sidebar-width: 248px;
+  --content-max: 1440px;
+  --control-height: 36px;
+  --control-height-sm: 30px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration: 200ms;
+
+  /* Layers */
+  --z-sticky: 10;
+  --z-dropdown: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+}

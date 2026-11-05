@@ -49,10 +49,27 @@ Run a single instance (or several with sticky sessions; state is in PostgreSQL, 
 - Model costs are paid by whoever owns the configured key. AI routes are rate-limited (30 requests/minute per client); consider removing the key for a public demo.
 - Use only fictional sample data.
 
+## Channel simulator (separate website)
+
+The simulator in `simulator/` is a static site. Build and host it anywhere static files are served (Netlify, Vercel, Cloudflare Pages, S3, nginx):
+
+- build command: `npm ci && npm run build -w simulator`; publish directory: `simulator/dist`
+- build-time variables:
+  - `VITE_API_URL` – the CRM's public URL, e.g. `https://crm.example.com`
+  - `VITE_CHANNEL_KEY` – the same value as the server's `CHANNEL_KEY`
+
+On the CRM server also set:
+
+- `CHANNEL_KEY` – a random secret (`openssl rand -hex 24`). Without it in production, the inbound API returns 503.
+- `CHANNEL_ALLOWED_ORIGINS` – the simulator's origin, e.g. `https://simulator.example.com`
+- `CRM_PUBLIC_URL` and `SIMULATOR_PUBLIC_URL` – so each site links to the other.
+
+The channel key is compiled into the simulator's JavaScript, so anyone who can open the simulator can send test enquiries. Treat it as a demo credential: inbound is rate-limited (30 messages a minute per client), and you can rotate the key or unset it to switch inbound off.
+
 ## Docker only
 
 ```bash
 JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up --build
 ```
 
-This starts PostgreSQL and the app on http://localhost:4000.
+This starts PostgreSQL and the CRM on http://localhost:4000. Run the simulator separately (`npm run dev -w simulator`, or deploy it as above).

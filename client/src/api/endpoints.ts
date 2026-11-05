@@ -78,14 +78,6 @@ export const reportsApi = {
     request<{ report: WeeklyReport }>(`/reports/weekly?end=${encodeURIComponent(end)}`).then((r) => r.report),
 };
 
-export const simulatorApi = {
-  send: (input: IntakeInput) =>
-    request<{ lead: Lead; created: boolean; analysis: Analysis }>("/simulator/messages", {
-      method: "POST",
-      body: input,
-    }),
-};
-
 export const adminApi = {
   resetDemo: () => request<{ imported: number }>("/admin/reset-demo", { method: "POST" }),
 };
