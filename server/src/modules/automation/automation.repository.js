@@ -80,7 +80,7 @@ export async function failInterrupted(db) {
 
 export async function getSettings(db) {
   const { rows } = await db.query("SELECT value FROM settings WHERE key = 'automation'");
-  return rows[0]?.value || { mode: "manual" };
+  return { mode: "manual", autoReply: "off", ...(rows[0]?.value || {}) };
 }
 
 export async function saveSettings(db, value) {

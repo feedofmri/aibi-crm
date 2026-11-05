@@ -36,6 +36,9 @@ function mapLead(row, messages = [], activity = []) {
       sourceId: m.source_id || "",
       sender: m.sender,
       phone: m.phone,
+      direction: m.direction || "inbound",
+      author: m.author || "",
+      delivery: m.delivery || "",
     })),
     activity: activity.map((a) => ({
       id: Number(a.id),
@@ -102,6 +105,7 @@ export async function hasMessage(db, leadId, { sourceId, text, channel, received
   const { rows } = await db.query(
     `SELECT 1 FROM messages
       WHERE lead_id = $1
+        AND direction = 'inbound'
         AND (($2::text IS NOT NULL AND source_id = $2)
              OR (text = $3 AND channel = $4 AND received_at = $5::timestamptz))
       LIMIT 1`,
@@ -154,11 +158,15 @@ export async function updateLead(db, id, changes) {
   );
 }
 
-export async function insertMessage(db, leadId, { text, channel, receivedAt, sourceId, sender, phone }) {
+export async function insertMessage(
+  db,
+  leadId,
+  { text, channel, receivedAt, sourceId, sender, phone, direction = "inbound", author = "", delivery = "" },
+) {
   await db.query(
-    `INSERT INTO messages (lead_id, text, channel, received_at, source_id, sender, phone)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [leadId, text, channel, receivedAt, sourceId || null, sender || "", phone || ""],
+    `INSERT INTO messages (lead_id, text, channel, received_at, source_id, sender, phone, direction, author, delivery)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    [leadId, text, channel, receivedAt, sourceId || null, sender || "", phone || "", direction, author, delivery],
   );
 }
 

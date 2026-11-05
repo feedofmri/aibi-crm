@@ -17,7 +17,7 @@ Built on the 20 supplied fictional messages (19 contacts). Prototype for BIAI's 
 | **Server** | Node.js 22+, Express 5, layered modules (routes → services → repositories), zod validation, helmet, rate limiting |
 | **Database** | PostgreSQL 16 with versioned SQL migrations |
 | **Auth** | Email + password (bcrypt), JWT session in an httpOnly SameSite cookie, role checks on the API |
-| **AI** | Gemini, Meta or OpenAI structured JSON output; labelled rule-based fallback when no key is set |
+| **AI** | Gemini, Meta or OpenAI structured JSON output with retries, caching and a code-enforced reply policy; labelled rule-based fallback when no key is set |
 | **Tests** | `node:test`: unit tests plus API integration tests against a real PostgreSQL database |
 
 ## Quick start
@@ -65,16 +65,18 @@ Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker comp
 - **Pipeline:** New → Contacted → Interested → Paid → Lost. Drag cards between stages (saved immediately, with an activity entry), or switch to a list.
 - **All enquiries:** every contact across Sales, Support, Careers and Spam, filterable by queue, programme, owner and text.
 - **Follow-ups:** contacts with no logged contact for 48 hours, or whose scheduled date has passed, grouped Urgent → Support → Sales, with one-click **Log contact**. Delay is graded (due today, overdue, more than 3 days overdue).
-- **Contact panel:** the original conversation and the reply draft first; owner, stage, priority, next action, scheduled follow-up and contact details beside it; an activity history showing who changed what.
+- **Contact panel:** the conversation (customer messages and the replies BIAI sent) and the reply draft first; **Mark as sent** records a reply sent from WhatsApp or by phone; owner, stage, priority, next action, scheduled follow-up and contact details beside it; an activity history showing who changed what.
 - **New enquiry:** paste a message (or pick a supplied sample) → extracted details and a draft reply → review and save. A matching phone number joins the existing contact; blank phones never merge.
 - **Weekly brief:** calculated totals for any seven Dhaka days, programme interest, support cases and three priorities (live AI or rules), copyable as text.
-- **Automation:** manual review, or automatic saving of complete new sales enquiries with every exception held for a person.
-- **Channel simulator (separate website):** write in as a prospective student on WhatsApp, Messenger, a Facebook comment, the website form or a call note. The message goes to the CRM's inbound channel API (authenticated with a channel key, not a staff login) and is extracted, routed and saved like a real enquiry. The drafted reply is shown in the chat but nothing is sent. Linked from the CRM sidebar.
+- **Automation:** manual review, or automatic saving of complete new sales enquiries with every exception held for a person. Optional **safe auto-reply** for inbound channel messages (off by default): only confident, policy-clean live-AI answers to sales questions are sent, at most two in a row; everything else is held as a draft with the reason logged.
+- **Channel simulator (separate website):** write in as a prospective student on WhatsApp, Messenger, a Facebook comment, the website form or a call note. The message goes to the CRM's inbound channel API (authenticated with a channel key, not a staff login) and is extracted, routed and saved like a real enquiry. With auto-reply off, the drafted reply is shown as a held suggestion; with safe auto-reply on, eligible replies arrive in the chat and are recorded in the CRM conversation. Linked from the CRM sidebar.
 - **Team:** members and roles. Admins add members, delete contacts and restore the sample data.
 
 ### Deliberate boundaries
 
-- Nothing is ever sent to a customer. WhatsApp and call buttons open the person's own app.
+- Nothing is sent to a real customer. Auto-reply (opt-in) only answers the simulated channel; WhatsApp and call buttons open the person's own app.
+- Every reply is checked in code for prices, dates, guarantees, payment confirmations, claims of actions taken, outside links and wrong script; a violation triggers one AI rewrite, and anything still failing is never auto-sent.
+- Follow-up messages are analysed with the conversation and never erase known facts: a programme or name is only filled in, and a contact is only ever escalated to Support.
 - A reported payment never marks a contact Paid; support cases always need a person.
 - Replies never promise prices, dates, venues, refunds or approvals; the team confirms those.
 - Unknown programmes stay "to confirm"; missing phones stay blank and are flagged.
@@ -178,7 +180,7 @@ All routes are under `/api`. `/channels/*` authenticates with the `X-Channel-Key
 
 ## Live AI
 
-Set one provider in `.env` and restart: `GEMINI_API_KEY` (+ `GEMINI_MODEL`), or `MODEL_API_KEY` + `META_MODEL` (Meta), or `OPENAI_API_KEY` + `OPENAI_MODEL`. If several are set, Gemini wins, then Meta. Keys stay on the server and are never sent to the browser. The sidebar shows which mode is active.
+Set one provider in `.env` and restart: `GEMINI_API_KEY` (+ `GEMINI_MODEL`), or `MODEL_API_KEY` + `META_MODEL` (Meta), or `OPENAI_API_KEY` + `OPENAI_MODEL`. If several are set, Gemini wins, then Meta. Keys stay on the server and are never sent to the browser. The simulator shows which mode is active, and `npm run evaluate:ai -w server` reports extraction scores, policy-clean replies, confidence and which samples would be auto-answered.
 
 Extraction uses a strict JSON schema and server-side validation. If a live call fails, the rule-based fallback is used and the result says `Live AI unavailable` so nobody mistakes it for AI output. Weekly totals are always calculated by code; the model only writes the three priorities.
 

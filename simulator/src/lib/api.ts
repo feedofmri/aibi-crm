@@ -11,6 +11,7 @@ export interface Sample {
 export interface ChannelInfo {
   channels: Channel[];
   ai: { mode: "live" | "rules"; provider: string | null };
+  autoReply: "off" | "safe";
   crmUrl: string;
   samples: Sample[];
 }
@@ -24,11 +25,21 @@ export interface InboundResult {
     program: string;
     route: "Sales" | "Support" | "Careers" | "Spam";
     language: string;
+    priority: "Normal" | "Urgent";
+    nextAction: string;
     messages: number;
     crmUrl: string;
   };
-  analysis: { mode: "live" | "sample" | "heuristic" | "manual"; reason: string };
-  reply: string;
+  analysis: {
+    mode: "live" | "sample" | "heuristic" | "manual";
+    reason: string;
+    confidence?: "high" | "medium" | "low";
+    urgent: boolean;
+    policy: string[];
+    latencyMs?: number;
+  };
+  /** sent = answered automatically; held = drafted, waiting for a person; none = no reply (spam). */
+  reply: { text: string; status: "sent" | "held" | "none"; reason: string; autoReply: "off" | "safe" };
 }
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");

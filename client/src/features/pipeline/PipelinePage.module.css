@@ -1,0 +1,69 @@
+/* One line under the title: the numbers that matter, the actionable ones
+   as links. Replaces four large stat cards that pushed the board down. */
+.summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-top: 2px;
+}
+
+.stat {
+  margin-right: 4px;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.stat strong,
+.alert strong {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px 0 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.alert svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.alert[data-tone="warning"] {
+  background: var(--amber-50);
+  color: var(--amber-700);
+}
+
+.alert[data-tone="warning"]:hover {
+  background: var(--amber-200);
+}
+
+.alert[data-tone="danger"] {
+  background: var(--red-50);
+  color: var(--red-700);
+}
+
+.alert[data-tone="danger"]:hover {
+  background: var(--red-200);
+}
+
+.alert[data-tone] strong {
+  color: inherit;
+}
+
+.alert:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.chevron {
+  opacity: 0.6;
+}

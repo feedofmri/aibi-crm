@@ -23,6 +23,23 @@ export interface Message {
   sourceId: string;
   sender: string;
   phone: string;
+  /** inbound = from the customer; outbound = a reply BIAI sent. */
+  direction: "inbound" | "outbound";
+  /** Who sent an outbound reply (a team member, or "Auto-reply"). */
+  author: string;
+  delivery: "" | "auto" | "manual";
+}
+
+export type AutoReplyMode = "off" | "safe";
+
+export interface AutomationSettings {
+  mode: "manual" | "automatic";
+  autoReply: AutoReplyMode;
+}
+
+export interface PolicyViolation {
+  id: string;
+  label: string;
 }
 
 export interface ActivityEntry {
@@ -109,6 +126,11 @@ export interface Analysis {
   reason: string;
   reply: string;
   mode: AnalysisMode;
+  urgent?: boolean;
+  confidence?: "high" | "medium" | "low";
+  nextAction?: string;
+  /** Reply-policy problems that remain after the AI's rewrite. */
+  policy?: PolicyViolation[];
 }
 
 export interface IntakeInput {

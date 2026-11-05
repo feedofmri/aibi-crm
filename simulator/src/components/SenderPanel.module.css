@@ -79,11 +79,16 @@
   accent-color: var(--brand-500);
 }
 
+.samplesCard {
+  display: flex;
+  flex-direction: column;
+}
+
 .samplesHead {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 20px 20px 10px;
+  padding: 18px 20px 8px;
 }
 
 .samples {
@@ -141,4 +146,19 @@
   white-space: nowrap;
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
+}
+
+/* In the full-height layout the samples card takes the rest of the column
+   and its list scrolls, instead of a fixed 360px box. */
+@media (min-width: 1280px) and (min-height: 640px) {
+  .samplesCard {
+    flex: 1;
+    min-height: 220px;
+  }
+
+  .samples {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
 }

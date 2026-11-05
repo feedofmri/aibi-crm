@@ -11,7 +11,9 @@ export function createReportsService({ pool, ai }) {
   async function weekly(end) {
     const periodEnd = new Date(`${end}T23:59:59.999+06:00`);
     const periodStart = new Date(periodEnd.getTime() - 7 * DAY_MS + 1);
+    // Enquiry totals count what customers sent, not BIAI's replies.
     const inPeriod = (m) => {
+      if (m.direction === "outbound") return false;
       const t = Date.parse(m.receivedAt);
       return t >= periodStart.getTime() && t <= periodEnd.getTime();
     };

@@ -17,7 +17,9 @@ export function metaRoutes({ ai, samples }) {
       channels: CHANNELS,
       roles: ROLES,
       followUpHours: FOLLOW_UP_HOURS,
-      ai: live ? { mode: "live", provider, model } : { mode: "rules", provider: null, model: null },
+      ai: live
+        ? { mode: "live", provider, model, stats: ai.aiStats ? ai.aiStats() : null }
+        : { mode: "rules", provider: null, model: null, stats: null },
       database: "PostgreSQL",
       simulatorUrl: config.simulatorUrl,
       samples: samples.map((s) => ({

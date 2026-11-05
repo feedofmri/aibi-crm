@@ -148,3 +148,65 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Auto-reply */
+.autoReply {
+  margin-bottom: var(--space-6);
+}
+
+.autoReplyBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.rules strong {
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.rules ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.rules li svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  color: var(--green-600);
+}
+
+.rules p {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+@media (max-width: 1100px) {
+  .autoReplyBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,6 +1,7 @@
 import type {
   Analysis,
   AutomationJob,
+  AutomationSettings,
   IntakeInput,
   Lead,
   LeadChanges,
@@ -40,6 +41,9 @@ export const leadsApi = {
     request<{ lead: Lead }>(`/leads/${id}/contact`, { method: "POST" }).then((r) => r.lead),
   draftReply: (id: string) =>
     request<{ lead: Lead }>(`/leads/${id}/draft`, { method: "POST" }).then((r) => r.lead),
+  /** Record a reply the team member sent outside the CRM. */
+  recordReply: (id: string, text: string) =>
+    request<{ lead: Lead }>(`/leads/${id}/reply`, { method: "POST", body: { text } }).then((r) => r.lead),
   remove: (id: string) => request<void>(`/leads/${id}`, { method: "DELETE" }),
 };
 
@@ -61,9 +65,11 @@ export const intakeApi = {
 };
 
 export const automationApi = {
-  get: () => request<{ settings: { mode: "manual" | "automatic" }; jobs: AutomationJob[] }>("/automation"),
-  setMode: (mode: "manual" | "automatic") =>
-    request<{ settings: { mode: "manual" | "automatic" } }>("/automation/settings", { method: "PUT", body: { mode } }),
+  get: () => request<{ settings: AutomationSettings; jobs: AutomationJob[] }>("/automation"),
+  setMode: (mode: AutomationSettings["mode"]) =>
+    request<{ settings: AutomationSettings }>("/automation/settings", { method: "PUT", body: { mode } }),
+  setAutoReply: (autoReply: AutomationSettings["autoReply"]) =>
+    request<{ settings: AutomationSettings }>("/automation/settings", { method: "PUT", body: { autoReply } }),
   process: (input: IntakeInput) =>
     request<{ job: AutomationJob }>("/automation/jobs", { method: "POST", body: input }).then((r) => r.job),
   review: (id: string, action: "approve" | "reject", changes?: Partial<Analysis>) =>

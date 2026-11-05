@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { MessageCircle } from "lucide-react";
 import { formatDateTime, formatRelative } from "@/lib/format";
-import { lastMessage, whatsappUrl } from "@/lib/lead";
+import { inboundMessages, lastMessage, whatsappUrl } from "@/lib/lead";
 import { useContactSheet } from "@/hooks/useContactSheet";
 import type { Lead } from "@/types";
 import { ChannelIcon, ContactCell, FollowUpBadge, ProgrammeLabel, QueueBadge, StageBadge } from "./LeadBits";
@@ -80,7 +80,7 @@ export function LeadTable({ leads, showQueue = true, rowAction, caption }: LeadT
                     <span className={styles.message}>
                       <ChannelIcon channel={message.channel} />
                       <span title={formatDateTime(message.receivedAt)}>{formatRelative(message.receivedAt)}</span>
-                      {lead.messages.length > 1 && <span className={styles.thread}>· {lead.messages.length} msgs</span>}
+                      {inboundMessages(lead).length > 1 && <span className={styles.thread}>· {inboundMessages(lead).length} msgs</span>}
                     </span>
                   )}
                 </td>

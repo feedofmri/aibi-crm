@@ -68,8 +68,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     },
   ];
 
-  const ai = meta.data?.ai;
-
   async function restoreSamples() {
     if (!window.confirm("Restore the 20 sample enquiries? This removes every contact and automation result added since.")) return;
     try {
@@ -113,7 +111,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 <li>
                   <a className={styles.link} href={meta.data.simulatorUrl} target="_blank" rel="noopener noreferrer">
                     <MessagesSquare />
-                    <span className={styles.linkLabel}>Channel simulator</span>
+                    <span className={styles.linkLabel}>Simulator</span>
                     <ExternalLink className={styles.external} aria-label="opens in a new tab" />
                   </a>
                 </li>
@@ -124,12 +122,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className={styles.footer}>
-        {ai && (
-          <div className={styles.status} title={ai.mode === "live" ? `${ai.provider} · ${ai.model}` : "No AI key configured"}>
-            <span className={cx(styles.statusDot, ai.mode === "live" && styles.statusLive)} />
-            <span>{ai.mode === "live" ? `Live AI · ${ai.provider}` : "Rule-based mode · no AI key"}</span>
-          </div>
-        )}
         <Menu
           placement="top-start"
           className={styles.accountMenu}

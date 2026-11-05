@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
-import { BellRing, Columns3, Headset, List, Plus, UserRoundCheck, Users } from "lucide-react";
-import { Button, EmptyState, PageLoader, Segmented, StatCard, StatGrid } from "@/components/ui";
+import { Link } from "react-router";
+import { BellRing, ChevronRight, Columns3, Headset, List, Plus, Users } from "lucide-react";
+import { Button, EmptyState, PageLoader, Segmented } from "@/components/ui";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useShell } from "@/components/layout/ShellContext";
 import { useLeads } from "@/hooks/queries";
-import { isOverdue } from "@/lib/lead";
+import { inboundMessages, isOverdue } from "@/lib/lead";
 import { LeadTable } from "@/features/leads/LeadTable";
 import { LeadToolbar } from "@/features/leads/LeadToolbar";
 import { useLeadFilters } from "@/features/leads/useLeadFilters";
 import { KanbanBoard } from "./KanbanBoard";
+import styles from "./PipelinePage.module.css";
 
 type View = "board" | "list";
 const VIEW_KEY = "biai.pipeline.view";
@@ -26,7 +27,6 @@ function initialView(): View {
 
 export function PipelinePage() {
   const { openIntake } = useShell();
-  const navigate = useNavigate();
   const leads = useLeads();
   const [view, setView] = useState<View>(initialView);
 
@@ -37,7 +37,7 @@ export function PipelinePage() {
     const all = leads.data ?? [];
     return {
       contacts: all.length,
-      messages: all.reduce((n, l) => n + l.messages.length, 0),
+      messages: all.reduce((n, l) => n + inboundMessages(l).length, 0),
       active: sales.filter((l) => l.status !== "Paid" && l.status !== "Lost").length,
       overdue: all.filter((l) => isOverdue(l)).length,
       support: all.filter((l) => l.route === "Support" && l.supportStatus === "Open").length,
@@ -56,9 +56,30 @@ export function PipelinePage() {
   return (
     <>
       <PageHeader
-        eyebrow="Admissions"
         title="Pipeline"
-        description="Sales enquiries by stage. Drag a card to move it, or open it to reply."
+        description={
+          leads.isPending ? undefined : (
+            <span className={styles.summary}>
+              <span className={styles.stat}>
+                <strong className="tabular">{stats.active}</strong> active of {stats.contacts} contacts
+              </span>
+              {stats.overdue > 0 && (
+                <Link to="/follow-ups" className={styles.alert} data-tone="warning">
+                  <BellRing aria-hidden />
+                  <strong className="tabular">{stats.overdue}</strong> follow-ups due
+                  <ChevronRight aria-hidden className={styles.chevron} />
+                </Link>
+              )}
+              {stats.support > 0 && (
+                <Link to="/follow-ups" className={styles.alert} data-tone="danger">
+                  <Headset aria-hidden />
+                  <strong className="tabular">{stats.support}</strong> open support {stats.support === 1 ? "case" : "cases"}
+                  <ChevronRight aria-hidden className={styles.chevron} />
+                </Link>
+              )}
+            </span>
+          )
+        }
         actions={
           <Button variant="primary" icon={<Plus />} onClick={openIntake}>
             New enquiry
@@ -70,27 +91,6 @@ export function PipelinePage() {
         <PageLoader label="Loading contacts" />
       ) : (
         <>
-          <StatGrid>
-            <StatCard label="Contacts" value={stats.contacts} hint={`from ${stats.messages} enquiries`} icon={<Users />} />
-            <StatCard label="Active in pipeline" value={stats.active} hint="not yet paid or lost" icon={<UserRoundCheck />} tone="brand" />
-            <StatCard
-              label="Follow-ups due"
-              value={stats.overdue}
-              hint="48-hour rule or scheduled date"
-              icon={<BellRing />}
-              tone={stats.overdue ? "warning" : "neutral"}
-              onClick={() => navigate("/follow-ups")}
-            />
-            <StatCard
-              label="Open support cases"
-              value={stats.support}
-              hint="payments and cancellations"
-              icon={<Headset />}
-              tone={stats.support ? "danger" : "neutral"}
-              onClick={() => navigate("/follow-ups")}
-            />
-          </StatGrid>
-
           <LeadToolbar filters={filters} resultCount={filters.filtered.length}>
             <Segmented<View>
               label="Pipeline view"

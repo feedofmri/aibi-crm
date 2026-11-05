@@ -54,15 +54,17 @@ function requireChannelKey(req, _res, next) {
  * routed and saved exactly like a real enquiry. Nothing is ever sent back to
  * the customer; the drafted reply is returned so the simulator can show it.
  */
-export function channelsRoutes({ leadsService, ai, samples }) {
+export function channelsRoutes({ leadsService, automationService, ai, samples }) {
   const router = Router();
   router.use(channelCors, requireChannelKey);
 
-  router.get("/info", (_req, res) => {
+  router.get("/info", async (_req, res) => {
     const live = ai.liveEnabled();
+    const { autoReply } = await automationService.settings();
     res.json({
       channels: CHANNELS,
       ai: live ? { mode: "live", provider: ai.aiConfig().provider } : { mode: "rules", provider: null },
+      autoReply,
       crmUrl: config.crmUrl,
       samples: samples.map((s) => ({
         id: s.id,
@@ -76,7 +78,14 @@ export function channelsRoutes({ leadsService, ai, samples }) {
 
   router.post("/inbound", inboundLimiter, validateBody(messageSchema), async (req, res) => {
     const { message, channel, name, phone } = req.body;
-    const analysis = await ai.analyze({ message, channel, name, phone, allowHeuristic: true });
+    const author = `Channel simulator (${channel})`;
+
+    // 1. Context: a known contact (by the given or quoted phone) and its conversation.
+    const known = await leadsService.findByPhone(ai.extractPhone(message, phone));
+    const context = ai.contextFromLead(known);
+
+    // 2–4. Extract, repair and policy-check (falls back to rules if the provider fails).
+    const analysis = await ai.analyze({ message, channel, name, phone, context, allowHeuristic: true });
     const valid = validateLead({
       name: analysis.name && analysis.name !== "Unknown" ? analysis.name : name || "Unknown",
       phone: analysis.phone || phone,
@@ -88,7 +97,9 @@ export function channelsRoutes({ leadsService, ai, samples }) {
       notes: "",
       nextFollowUp: "",
     });
-    const { lead, created } = await leadsService.ingest(
+
+    // 5. Save: a new contact, or a non-destructive merge into the known one.
+    let { lead, created } = await leadsService.ingest(
       {
         ...valid,
         message,
@@ -96,11 +107,24 @@ export function channelsRoutes({ leadsService, ai, samples }) {
         reply: analysis.reply,
         reason: analysis.reason,
         mode: analysis.mode,
+        priority: analysis.urgent ? "Urgent" : "Normal",
+        nextAction: analysis.nextAction,
         receivedAt: new Date().toISOString(),
-        applyReview: true,
+        mergeAnalysis: true,
       },
-      `Channel simulator (${channel})`,
+      author,
     );
+
+    // 6. Auto-reply gate: send only confident, policy-clean sales replies.
+    const { autoReply } = await automationService.settings();
+    const decision = ai.autoReplyDecision({ setting: autoReply, analysis, lead });
+    let replyStatus = analysis.reply && lead.route !== "Spam" ? "held" : "none";
+    if (decision.send) {
+      lead = await leadsService.recordReply(lead.id, { text: analysis.reply, channel, author: "Auto-reply", delivery: "auto" });
+      replyStatus = "sent";
+    } else if (autoReply === "safe" && replyStatus === "held") {
+      await leadsService.noteActivity(lead.id, `Auto-reply held for a person: ${decision.reason}`, "Auto-reply");
+    }
 
     // Return only what the channel needs, not the whole CRM record.
     res.status(created ? 201 : 200).json({
@@ -112,11 +136,25 @@ export function channelsRoutes({ leadsService, ai, samples }) {
         program: lead.program,
         route: lead.route,
         language: lead.language,
-        messages: lead.messages.length,
+        priority: lead.priority,
+        nextAction: lead.nextAction,
+        messages: lead.messages.filter((m) => m.direction !== "outbound").length,
         crmUrl: `${config.crmUrl}/enquiries?contact=${lead.id}`,
       },
-      analysis: { mode: analysis.mode, reason: analysis.reason },
-      reply: lead.route === "Spam" ? "" : analysis.reply,
+      analysis: {
+        mode: analysis.mode,
+        reason: analysis.reason,
+        confidence: analysis.confidence,
+        urgent: Boolean(analysis.urgent),
+        policy: (analysis.policy || []).map((v) => v.label),
+        latencyMs: analysis.latencyMs,
+      },
+      reply: {
+        text: lead.route === "Spam" ? "" : analysis.reply,
+        status: replyStatus,
+        reason: replyStatus === "none" ? "" : decision.reason,
+        autoReply,
+      },
     });
   });
 

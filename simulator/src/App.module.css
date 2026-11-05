@@ -13,8 +13,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  height: 64px;
-  padding: 0 32px;
+  height: 56px;
+  padding: 0 24px;
   background: rgba(250, 247, 242, 0.9);
   backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -74,7 +74,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 32px;
+  padding: 10px 24px;
   background: var(--red-50);
   color: var(--red-700);
   border-bottom: 1px solid var(--red-200);
@@ -110,36 +110,37 @@
 /* Content */
 .main {
   flex: 1;
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 40px 32px 40px;
-}
-
-.intro {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 32px;
+  width: 100%;
+  padding: 20px 24px;
+}
+
+/* One compact line: title + explanation, not a hero. */
+.intro {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 16px;
 }
 
 .intro h1 {
-  font-size: 2.25rem;
+  font-size: var(--text-2xl);
   font-weight: var(--weight-regular);
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .intro p {
-  max-width: 560px;
   color: var(--color-text-secondary);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 300px;
-  gap: 20px;
+  grid-template-columns: 320px minmax(0, 1fr) 340px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -149,17 +150,40 @@
   gap: 12px;
   flex-wrap: wrap;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 20px 32px 28px;
+  padding: 10px 24px;
   border-top: 1px solid var(--color-border-subtle);
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 
+/* Wide, tall screens: a full-height app shell. The page never scrolls; the
+   three columns fill the viewport and each scrolls on its own. */
+@media (min-width: 1280px) and (min-height: 640px) {
+  .app {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .main {
+    min-height: 0;
+  }
+
+  .layout {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .layout > * {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
 @media (max-width: 1279px) {
   .layout {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
   }
 }
 
@@ -169,11 +193,11 @@
   }
 
   .main {
-    padding: 24px 16px 32px;
+    padding: 16px;
   }
 
   .intro h1 {
-    font-size: 1.75rem;
+    font-size: var(--text-xl);
   }
 
   .layout {

@@ -1,19 +1,93 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Hand, PlayCircle, ShieldCheck, Workflow, Zap } from "lucide-react";
+import { Bot, CheckCircle2, Hand, MessageSquareReply, PlayCircle, ShieldCheck, Workflow, Zap } from "lucide-react";
 import { automationApi } from "@/api/endpoints";
 import { Button, Card, CardHeader, EmptyState, PageLoader, Segmented, useToast } from "@/components/ui";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useCurrentUser } from "@/features/auth/AuthProvider";
 import { queryKeys, useMeta } from "@/hooks/queries";
 import { cx } from "@/lib/cx";
+import type { AutoReplyMode } from "@/types";
 import { JobCard } from "./JobCard";
 import styles from "./AutomationPage.module.css";
 
 type Mode = "manual" | "automatic";
 type Filter = "review" | "all";
 
-const MODES: { value: Mode; title: string; text: string; icon: React.ReactNode }[] = [
+interface Option<T extends string> {
+  value: T;
+  title: string;
+  text: string;
+  icon: React.ReactNode;
+}
+
+const AUTO_REPLY: Option<AutoReplyMode>[] = [
+  {
+    value: "off",
+    title: "Drafts only",
+    text: "Every inbound message gets a reply draft. A person reviews it and sends it.",
+    icon: <Hand />,
+  },
+  {
+    value: "safe",
+    title: "Send safe replies automatically",
+    text: "Clear-cut sales questions are answered at once. Everything else is held for a person.",
+    icon: <Bot />,
+  },
+];
+
+const AUTO_REPLY_RULES = [
+  "Live AI with high confidence (never a rule-based draft)",
+  "A sales enquiry, not support, careers or spam, and not urgent",
+  "Passes the reply check: no prices, dates, guarantees, payment confirmations or outside links, in the right language",
+  "The contact is not assigned to a team member, paid or lost",
+  "At most two automatic replies in a row; then a person takes over",
+];
+
+/** A set of mutually exclusive option cards (radio group). */
+function OptionCards<T extends string>({
+  label,
+  options,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  options: Option<T>[];
+  value: T;
+  disabled: boolean;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className={styles.modes} role="radiogroup" aria-label={label}>
+      {options.map((option) => {
+        const selected = value === option.value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            disabled={disabled}
+            className={cx(styles.mode, selected && styles.modeSelected)}
+            onClick={() => onChange(option.value)}
+          >
+            <span className={styles.modeIcon}>{option.icon}</span>
+            <span className={styles.modeText}>
+              <strong>{option.title}</strong>
+              <span>{option.text}</span>
+            </span>
+            <span className={styles.radio} aria-hidden>
+              {selected && <CheckCircle2 />}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const MODES: Option<Mode>[] = [
   {
     value: "manual",
     title: "Manual review",
@@ -57,6 +131,20 @@ export function AutomationPage() {
     }
   }
 
+  async function changeAutoReply(autoReply: AutoReplyMode) {
+    if (!canChangeMode || autoReply === automation.data?.settings.autoReply) return;
+    setSavingMode(true);
+    try {
+      await automationApi.setAutoReply(autoReply);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.automation });
+      toast.success(autoReply === "safe" ? "Safe auto-replies are on." : "Auto-reply is off. Replies wait as drafts.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setSavingMode(false);
+    }
+  }
+
   async function processSamples() {
     const samples = meta.data?.samples ?? [];
     setProgress({ done: 0, total: samples.length });
@@ -78,13 +166,14 @@ export function AutomationPage() {
   }
 
   const mode = automation.data?.settings.mode ?? "manual";
+  const autoReply = automation.data?.settings.autoReply ?? "off";
 
   return (
     <>
       <PageHeader
         eyebrow="Intake"
         title="Automation"
-        description="Extract, classify and draft replies for incoming enquiries. Nothing is ever sent, and payment claims never mark a contact paid."
+        description="Extract, classify and draft replies for incoming enquiries. Payment claims never mark a contact paid."
       />
 
       {automation.isPending ? (
@@ -98,31 +187,7 @@ export function AutomationPage() {
                 title="Processing mode"
                 description={canChangeMode ? "Choose how much a person checks before saving." : "Only Admin and Admissions can change this."}
               />
-              <div className={styles.modes} role="radiogroup" aria-label="Processing mode">
-                {MODES.map((option) => {
-                  const selected = mode === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      disabled={!canChangeMode || savingMode}
-                      className={cx(styles.mode, selected && styles.modeSelected)}
-                      onClick={() => changeMode(option.value)}
-                    >
-                      <span className={styles.modeIcon}>{option.icon}</span>
-                      <span className={styles.modeText}>
-                        <strong>{option.title}</strong>
-                        <span>{option.text}</span>
-                      </span>
-                      <span className={styles.radio} aria-hidden>
-                        {selected && <CheckCircle2 />}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <OptionCards label="Processing mode" options={MODES} value={mode} disabled={!canChangeMode || savingMode} onChange={changeMode} />
             </Card>
 
             <Card>
@@ -143,6 +208,39 @@ export function AutomationPage() {
               )}
             </Card>
           </div>
+
+          <Card className={styles.autoReply}>
+            <CardHeader
+              icon={<MessageSquareReply />}
+              title="Auto-reply to inbound messages"
+              description={
+                canChangeMode
+                  ? "For messages arriving through a channel (the simulator today). Pasted enquiries are never auto-answered."
+                  : "Only Admin and Admissions can change this."
+              }
+            />
+            <div className={styles.autoReplyBody}>
+              <OptionCards
+                label="Auto-reply"
+                options={AUTO_REPLY}
+                value={autoReply}
+                disabled={!canChangeMode || savingMode}
+                onChange={changeAutoReply}
+              />
+              <div className={styles.rules}>
+                <strong>A reply is only sent automatically when all of these hold:</strong>
+                <ul>
+                  {AUTO_REPLY_RULES.map((rule) => (
+                    <li key={rule}>
+                      <CheckCircle2 aria-hidden />
+                      {rule}
+                    </li>
+                  ))}
+                </ul>
+                <p>Sent replies appear in the contact's conversation and count as contact. Held ones stay as drafts, with the reason in the activity log.</p>
+              </div>
+            </div>
+          </Card>
 
           <div className={styles.listHeader}>
             <Segmented<Filter>

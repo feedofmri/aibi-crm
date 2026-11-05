@@ -70,11 +70,11 @@ export function SenderPanel(props: SenderPanelProps) {
 
         <label className={styles.toggle}>
           <input type="checkbox" checked={showReply} onChange={(e) => props.onShowReply(e.target.checked)} />
-          <span>Show the suggested reply</span>
+          <span>Show held reply drafts</span>
         </label>
       </section>
 
-      <section className={`${panel.card} ${panel.cardFlush}`} aria-labelledby="samples-title">
+      <section className={`${panel.card} ${panel.cardFlush} ${styles.samplesCard}`} aria-labelledby="samples-title">
         <div className={styles.samplesHead}>
           <span className="eyebrow">Try one</span>
           <h2 id="samples-title" className={panel.title}>

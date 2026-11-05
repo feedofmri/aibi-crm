@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { LANGUAGES, PROGRAMS, ROUTES, STAGES } from "../../domain/lead.js";
+import { CHANNELS, LANGUAGES, PROGRAMS, ROUTES, STAGES } from "../../domain/lead.js";
 import { requireRole } from "../../middleware/authenticate.js";
 import { validateBody } from "../../middleware/validate.js";
 
@@ -26,6 +26,11 @@ const updateSchema = z
   .strict();
 
 const idParam = z.uuid();
+
+const replySchema = z.object({
+  text: z.string().trim().min(1, "Write the reply that was sent.").max(10000),
+  channel: z.enum(CHANNELS).optional(),
+});
 
 export function leadsRoutes({ leadsService }) {
   const router = Router();
@@ -60,6 +65,17 @@ export function leadsRoutes({ leadsService }) {
 
   router.post("/:id/draft", async (req, res) => {
     res.json({ lead: await leadsService.generateDraft(req.params.id, req.user) });
+  });
+
+  /** Record a reply the team member sent outside the CRM (WhatsApp, phone…). */
+  router.post("/:id/reply", validateBody(replySchema), async (req, res) => {
+    const lead = await leadsService.recordReply(req.params.id, {
+      text: req.body.text,
+      channel: req.body.channel,
+      author: req.user.name,
+      delivery: "manual",
+    });
+    res.json({ lead });
   });
 
   return router;
