@@ -38,6 +38,7 @@ Run end to end against PostgreSQL in Chromium at 1440 × 900 and iPhone 13 size:
 - The cPanel bundle (`npm run bundle`: 21 files, API in one `server.mjs`) was run from a folder with no `node_modules`, in production mode, loading settings from `~/biai.env`, against a fresh PostgreSQL database: migrations, seeding and both web apps worked.
 - The simulator was built for production (CRM URL and channel key compiled in) and served from a different origin; the full browser run (sign-in, every CRM page, intake, follow-ups, automation, simulator → CRM) passed with no console errors besides the expected pre-sign-in session check.
 - The deploy workflow's FTPS upload commands were run against a local FTPS server: stale files were deleted, `.htaccess` and `stderr.log` were kept, and the uploaded copy started and passed the workflow's smoke tests (health, both web apps, CORS, wrong key refused, data needs a session).
+- PostgreSQL 12 (common on cPanel, lacks a built-in `gen_random_uuid()`): CI runs the full suite on PostgreSQL 12 and 16. The first CI run caught that the fallback's ids were not valid version-4 UUIDs (the API rejects those); the fallback now produces proper v4 ids, verified with 2,000 samples and the full suite running on the fallback.
 - Not yet verified on the real cPanel server: that needs the one-time setup in `cpanel-setup.md` and the GitHub secrets.
 
 ## Real AI regression check (earlier version, same prompts)

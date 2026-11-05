@@ -2,12 +2,19 @@
 
 -- gen_random_uuid() is built in from PostgreSQL 13. Shared hosts (cPanel) often
 -- run PostgreSQL 12 without the pgcrypto extension, so define a fallback there.
+-- It returns a valid version-4 UUID (version and variant digits set), because
+-- the API validates ids strictly.
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'gen_random_uuid') THEN
     CREATE FUNCTION gen_random_uuid() RETURNS uuid
       LANGUAGE sql VOLATILE
-      AS $f$ SELECT md5(random()::text || clock_timestamp()::text)::uuid $f$;
+      AS $f$
+        SELECT (substr(h, 1, 8) || '-' || substr(h, 9, 4) || '-4' || substr(h, 14, 3) || '-' ||
+                substr('89ab', floor(random() * 4)::int + 1, 1) || substr(h, 18, 3) || '-' ||
+                substr(h, 21, 12))::uuid
+        FROM (SELECT md5(random()::text || clock_timestamp()::text) AS h) AS s
+      $f$;
   END IF;
 END
 $$;
