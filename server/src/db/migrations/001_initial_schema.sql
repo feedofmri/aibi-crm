@@ -1,5 +1,17 @@
 -- Initial schema for the BIAI admissions CRM.
 
+-- gen_random_uuid() is built in from PostgreSQL 13. Shared hosts (cPanel) often
+-- run PostgreSQL 12 without the pgcrypto extension, so define a fallback there.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'gen_random_uuid') THEN
+    CREATE FUNCTION gen_random_uuid() RETURNS uuid
+      LANGUAGE sql VOLATILE
+      AS $f$ SELECT md5(random()::text || clock_timestamp()::text)::uuid $f$;
+  END IF;
+END
+$$;
+
 CREATE TABLE users (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL CHECK (char_length(name) BETWEEN 1 AND 200),

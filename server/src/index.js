@@ -1,3 +1,5 @@
+// Must be first: loads ~/biai.env before any module reads process.env.
+import "./config/load-env-file.js";
 import { config } from "./config/env.js";
 import { createPool } from "./db/pool.js";
 import { migrate } from "./db/migrate.js";

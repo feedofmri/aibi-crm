@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -22,7 +23,15 @@ import { usersRoutes } from "./modules/users/users.routes.js";
 import * as defaultAi from "./services/ai/ai.service.js";
 import { samples } from "./services/ai/samples.js";
 
-const CLIENT_DIST = fileURLToPath(new URL("../../client/dist/", import.meta.url));
+/**
+ * Where the built React client is: next to the bundled server in production
+ * (deploy/public), or client/dist when running from the repository.
+ */
+const CLIENT_DIST = [
+  process.env.CLIENT_DIST_DIR,
+  fileURLToPath(new URL("./public/", import.meta.url)),
+  fileURLToPath(new URL("../../client/dist/", import.meta.url)),
+].find((dir) => dir && existsSync(dir + "/index.html"));
 
 /** Build the services once so routes and background tasks share them. */
 export function createServices({ pool, ai = defaultAi }) {
@@ -81,9 +90,9 @@ export function createApp(services, { serveClient = true } = {}) {
   app.use("/api", api);
 
   // In production the API also serves the built React app (single origin).
-  if (serveClient && existsSync(CLIENT_DIST)) {
+  if (serveClient && CLIENT_DIST) {
     app.use(express.static(CLIENT_DIST, { index: false, maxAge: "1h" }));
-    app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(CLIENT_DIST + "index.html"));
+    app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(join(CLIENT_DIST, "index.html")));
   }
 
   app.use(errorHandler);

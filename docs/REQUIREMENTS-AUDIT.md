@@ -12,7 +12,7 @@
 | Code/workflow | Repository: `client/` (CRM, React + TypeScript), `simulator/` (channel simulator site), `server/` (Express + PostgreSQL), tests, Docker |
 | Half-page note | `SUBMISSION-NOTE.md` |
 | Loom up to five minutes | `LOOM-SCRIPT.md`; recording by the applicant |
-| Working link if available | Runs locally; hosting steps in `DEPLOYMENT.md` |
+| Working link if available | https://biai-crm.boraqs.com and https://biai-simulator.boraqs.com once the cPanel setup in `cpanel-setup.md` is done |
 
 ## Beyond the brief
 

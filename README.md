@@ -56,6 +56,8 @@ npm run build
 npm start
 ```
 
+**Live deployment (cPanel):** https://biai-crm.boraqs.com and https://biai-simulator.boraqs.com, deployed by GitHub Actions over FTPS. One-time setup: [docs/cpanel-setup.md](docs/cpanel-setup.md).
+
 Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up --build`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## What it does
@@ -123,9 +125,10 @@ aibi-crm/
 │   │   ├── services/ai/         provider calls, prompts, reviewed samples, rule-based fallback
 │   │   ├── data/                the 20 supplied sample enquiries
 │   │   └── utils/
-│   ├── scripts/evaluate-ai.js   live regression run over the 20 samples
+│   ├── scripts/                 evaluate-ai.js (live AI regression), bundle.mjs (cPanel bundle)
 │   └── tests/                   unit/ and integration/ (real PostgreSQL)
 ├── docs/                        submission note, QA, deployment, Loom guide, evidence
+├── .github/workflows/           ci.yml (tests on PostgreSQL 12 + 16), deploy-cpanel.yml (FTPS deploy)
 ├── docker-compose.yml           PostgreSQL (and optional app container)
 └── Dockerfile                   multi-stage production image
 ```
@@ -141,6 +144,7 @@ aibi-crm/
 | `npm test` | Server unit and integration tests |
 | `npm run typecheck` | TypeScript check of both web apps |
 | `npm run check` | Type-check, build and test |
+| `npm run bundle` | Build the cPanel deploy folder `deploy/crm` (API in one file + web app) |
 | `npm run db:up` | Start PostgreSQL in Docker |
 | `npm run db:migrate` / `db:seed` / `db:reset` | Apply migrations / seed if empty / restore the 20 samples |
 | `npm run evaluate:ai -w server` | Run the live AI regression (20 paid calls) |
@@ -180,4 +184,4 @@ Extraction uses a strict JSON schema and server-side validation. If a live call 
 
 ## Documentation
 
-[Submission note](docs/SUBMISSION-NOTE.md) · [QA report](docs/QA.md) · [Requirements audit](docs/REQUIREMENTS-AUDIT.md) · [Deployment](docs/DEPLOYMENT.md) · [Loom guide](docs/LOOM-SCRIPT.md) · [Why this app](docs/WHY-THIS-APP.md) · [Brand notes](docs/BRAND.md)
+[Submission note](docs/SUBMISSION-NOTE.md) · [cPanel setup](docs/cpanel-setup.md) · [QA report](docs/QA.md) · [Requirements audit](docs/REQUIREMENTS-AUDIT.md) · [Deployment](docs/DEPLOYMENT.md) · [Loom guide](docs/LOOM-SCRIPT.md) · [Why this app](docs/WHY-THIS-APP.md) · [Brand notes](docs/BRAND.md)

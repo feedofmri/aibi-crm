@@ -1,10 +1,7 @@
-import { readFileSync } from "node:fs";
-export const samples = JSON.parse(
-  readFileSync(
-    new URL("../../data/sample-enquiries.json", import.meta.url),
-    "utf8",
-  ).replace(/^\uFEFF/, ""),
-);
+// Imported (not read from disk) so the bundled production server carries the data with it.
+import sampleData from "../../data/sample-enquiries.json" with { type: "json" };
+
+export const samples = sampleData;
 // Human-reviewed interpretations of the supplied fictional messages, not model predictions.
 const decisions = [
   ["Bootcamp", "Sales", "Banglish", "Price and payment enquiry."],

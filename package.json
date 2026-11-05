@@ -24,7 +24,8 @@
     "db:seed": "npm run db:seed -w server",
     "db:reset": "npm run db:reset -w server",
     "dev:crm": "concurrently -k -n server,crm -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
-    "preview:simulator": "npm run preview -w simulator"
+    "preview:simulator": "npm run preview -w simulator",
+    "bundle": "npm run build -w client && npm run bundle -w server"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

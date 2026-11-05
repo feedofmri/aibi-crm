@@ -16,3 +16,6 @@ simulator/dist/
 *.sqlite*
 coverage/
 .DS_Store
+
+# cPanel deploy output
+deploy/

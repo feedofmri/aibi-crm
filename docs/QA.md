@@ -33,6 +33,13 @@ Run end to end against PostgreSQL in Chromium at 1440 × 900 and iPhone 13 size:
 - Mobile: navigation drawer, stacked stat cards, full-screen contact panel, simulator with the chat first.
 - No console errors apart from the expected 401 when checking the session before sign-in.
 
+## Production build and deployment rehearsal
+
+- The cPanel bundle (`npm run bundle`: 21 files, API in one `server.mjs`) was run from a folder with no `node_modules`, in production mode, loading settings from `~/biai.env`, against a fresh PostgreSQL database: migrations, seeding and both web apps worked.
+- The simulator was built for production (CRM URL and channel key compiled in) and served from a different origin; the full browser run (sign-in, every CRM page, intake, follow-ups, automation, simulator → CRM) passed with no console errors besides the expected pre-sign-in session check.
+- The deploy workflow's FTPS upload commands were run against a local FTPS server: stale files were deleted, `.htaccess` and `stderr.log` were kept, and the uploaded copy started and passed the workflow's smoke tests (health, both web apps, CORS, wrong key refused, data needs a session).
+- Not yet verified on the real cPanel server: that needs the one-time setup in `cpanel-setup.md` and the GitHub secrets.
+
 ## Real AI regression check (earlier version, same prompts)
 
 The extraction prompt was run against all 20 supplied messages with **Meta Model API / muse-spark-1.3**. All 20 calls succeeded. Name, phone, programme, queue and language each matched our reviewed baseline on **20/20** messages. See `evidence/live-ai-evaluation.json` and `evidence/live-reply-check.json`.

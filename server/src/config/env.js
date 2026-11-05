@@ -8,6 +8,17 @@ const isTest = env.NODE_ENV === "test";
 
 const DEV_JWT_SECRET = "biai-crm-development-only-secret";
 
+/**
+ * Accept a DATABASE_URL as people paste it on shared hosts: surrounding quotes
+ * are dropped and "localhost" becomes 127.0.0.1 (cPanel PostgreSQL often
+ * listens on IPv4 only, while localhost may resolve to ::1).
+ */
+export function normalizeDatabaseUrl(raw) {
+  if (!raw) return raw;
+  const url = raw.trim().replace(/^(["'])(.*)\1$/s, "$2");
+  return url.replace(/@localhost(?=[:/])/i, "@127.0.0.1");
+}
+
 if (isProduction && !env.JWT_SECRET) {
   throw new Error("JWT_SECRET must be set in production.");
 }
@@ -17,10 +28,11 @@ export const config = Object.freeze({
   isTest,
   port: Number(env.PORT || 4000),
   host: env.HOST || "127.0.0.1",
-  databaseUrl:
+  databaseUrl: normalizeDatabaseUrl(
     (isTest ? env.TEST_DATABASE_URL : undefined) ||
-    env.DATABASE_URL ||
-    "postgresql://biai:biai_dev_password@127.0.0.1:5432/biai_crm",
+      env.DATABASE_URL ||
+      "postgresql://biai:biai_dev_password@127.0.0.1:5432/biai_crm",
+  ),
   jwtSecret: env.JWT_SECRET || DEV_JWT_SECRET,
   usingDevSecret: !env.JWT_SECRET,
   sessionCookie: "biai_session",

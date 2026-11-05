@@ -24,7 +24,11 @@ npm run dev
 
 No API key is needed. Without one the app uses labelled reviewed samples and a rule-based fallback.
 
-## Hosting
+## cPanel (the live deployment)
+
+The live sites, https://biai-crm.boraqs.com and https://biai-simulator.boraqs.com, run on cPanel and are deployed by GitHub Actions over FTPS. Follow [cpanel-setup.md](cpanel-setup.md).
+
+## Other hosts
 
 The production server is a single Node process that serves the API and the built React app from one origin, so the session cookie and same-origin checks work without CORS.
 
