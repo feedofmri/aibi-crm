@@ -1,0 +1,538 @@
+{
+  "generatedAt": "2026-11-03T12:07:45.399Z",
+  "provider": "Meta",
+  "model": "muse-spark-1.3",
+  "baseline": "Human-reviewed interpretations, not official BIAI labels. Same supplied examples used during prompt development; this is a sample regression check, not a held-out benchmark.",
+  "count": 20,
+  "successful": 20,
+  "scores": {
+    "name": "20/20",
+    "phone": "20/20",
+    "program": "20/20",
+    "route": "20/20",
+    "language": "20/20"
+  },
+  "replyReview": "Reply wording must be manually reviewed for language, usefulness and unsupported policy claims. Extraction scores do not measure reply quality.",
+  "results": [
+    {
+      "id": "1",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Bootcamp",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Rafi Ahmed",
+        "phone": "01711000001",
+        "program": "Bootcamp",
+        "reason": "Price and payment method not provided in enquiry, so team must confirm; 3 day bootcamp explicitly mentioned.",
+        "reply": "Walaikumussalam, 3 day bootcamp er price ar payment process niye jiggesh korar jonno dhonnobad. Exact info amader team confirm korte hobe. Apni kobe join korte interested?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 11888
+    },
+    {
+      "id": "2",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Fellowship",
+        "route": "Sales",
+        "language": "Bangla"
+      },
+      "actual": {
+        "language": "Bangla",
+        "name": "Tahmina Akter",
+        "phone": "",
+        "program": "Fellowship",
+        "reason": "Message explicitly asks for Fellowship admission and start date; start date is unknown and needs team confirmation, and phone is missing.",
+        "reply": "ফেলোশিপ প্রোগ্রামে ভর্তির আগ্রহের জন্য ধন্যবাদ। শুরুর তারিখটি আমাদের টিমকে নিশ্চিত করতে হবে। আপনার সাথে যোগাযোগের জন্য একটি মোবাইল নম্বর দিতে পারবেন?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 11891
+    },
+    {
+      "id": "3",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Corporate training",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Mahmud Hasan (Managing Director, Gazipur textile company)",
+        "phone": "01711000003",
+        "program": "Corporate training",
+        "reason": "New team training enquiry routes to Sales; call availability needs human confirmation.",
+        "reply": "Thanks for reaching out about AI training for your 40-person textile team in Gazipur. Our team must confirm a call time this week. What time works best for you to discuss your training goals?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 13960
+    },
+    {
+      "id": "4",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Sabbir",
+        "phone": "01711000004",
+        "program": "Unspecified",
+        "reason": "Message asks about live vs recorded format without naming a programme, so programme stays Unspecified; general enquiry routes to Sales and needs team confirmation.",
+        "reply": "Live class vs recording niye jante cheyechen, bujhte perechi. Ei bisoye team confirm korte hobe. Apni kon course er class somporke jante chacchen?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 12728
+    },
+    {
+      "id": "5",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Nasreen Sultana",
+        "phone": "01711000005",
+        "program": "Unspecified",
+        "reason": "Message only mentions student discount with no programme named, so programme is Unspecified and routed to Sales; discount details need team confirmation.",
+        "reply": "Thanks for asking about the student discount and for noting you'll call again after 5 PM tomorrow. The team must confirm the current details for you. Could you please share which programme you are interested in?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 9557
+    },
+    {
+      "id": "6",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Ishtiaq",
+        "phone": "",
+        "program": "Unspecified",
+        "reason": "Message asks about job after course but names no specific programme, so programme is Unspecified and outcome needs team confirmation; general enquiry routes to Sales.",
+        "reply": "Bujhte perechi apni jante chacchen course korle job paben kina, eita amader team confirm korte parbe. Apni kon course niye interested seta janaben ki?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 13802
+    },
+    {
+      "id": "7",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Support",
+        "language": "Bangla"
+      },
+      "actual": {
+        "language": "Bangla",
+        "name": "Farzana Rahman",
+        "phone": "01711000007",
+        "program": "Unspecified",
+        "reason": "Payment reported via bKash without confirmation needs human verification, so routed to Support; no programme stated so Unspecified.",
+        "reply": "পেমেন্ট কনফার্মেশন না পাওয়ার বিষয়টি বুঝতে পেরেছি। আপনার পেমেন্ট যাচাই করে আমাদের টিমকে নিশ্চিত করতে হবে। অনুগ্রহ করে আপনার বিকাশ ট্রানজেকশন আইডিটি শেয়ার করবেন কি?",
+        "route": "Support",
+        "mode": "live"
+      },
+      "latencyMs": 14008
+    },
+    {
+      "id": "8",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Anika Chowdhury",
+        "phone": "01711000008",
+        "program": "Unspecified",
+        "reason": "No programme named so Unspecified; hypothetical refund question with no confirmed payment is a general enquiry for Sales, policy needs team confirmation.",
+        "reply": "Thanks for asking about refunds if you cannot attend after paying — the team must confirm the exact policy for you. Could you share which programme you are considering?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 16078
+    },
+    {
+      "id": "9",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Jahid",
+        "phone": "",
+        "program": "Unspecified",
+        "reason": "Message asks for offline venue but gives no program; location is unknown and needs team confirmation.",
+        "reply": "Offline class Mirpur e hobe kina jante cheyechen bujhte perechi, ei location team ke confirm korte hobe. Apni kon program er offline class somporke jante chan?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 12950
+    },
+    {
+      "id": "10",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Corporate training",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Kamrul Islam (HR, a bank in Motijheel)",
+        "phone": "01711000010",
+        "program": "Corporate training",
+        "reason": "Request for 120-employee bank training indicates Corporate training; routed to Sales as quote enquiry, pricing needs team confirmation.",
+        "reply": "Thanks for reaching out about corporate training for 120 employees. Our team must confirm pricing and format options for you. Could you share what skills/topics you want covered?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 12977
+    },
+    {
+      "id": "11",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Spam",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Earn Crypto Daily",
+        "phone": "",
+        "program": "Unspecified",
+        "reason": "Message is unsolicited crypto promotion with external link and no BIAI enquiry, so routed to Spam.",
+        "reply": "",
+        "route": "Spam",
+        "mode": "live"
+      },
+      "latencyMs": 8620
+    },
+    {
+      "id": "12",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Bootcamp",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Rafi Ahmed",
+        "phone": "01711000001",
+        "program": "Bootcamp",
+        "reason": "Message explicitly asks Bootcamp price, so programme is clear. It is a general enquiry, so routes to Sales. Exact price is not available, needs team confirmation.",
+        "reply": "Bootcamp er price jante cheyechen, dhonnobad. Exact fee amader team confirm korbe. Apni ki full-time naki part-time batch e interested?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 9729
+    },
+    {
+      "id": "13",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Bangla"
+      },
+      "actual": {
+        "language": "Bangla",
+        "name": "Mim",
+        "phone": "",
+        "program": "Unspecified",
+        "reason": "Free masterclass means program is Unspecified and class 9 eligibility is not stated, so Sales route with team confirmation is needed.",
+        "reply": "ফ্রি মাস্টারক্লাসে জয়েন করতে চাওয়ার জন্য ধন্যবাদ। ক্লাস ৯ থেকে জয়েন করা যাবে কিনা তা আমাদের টিমকে কনফার্ম করতে হবে। তোমার সাথে যোগাযোগ করতে একটি কন্টাক্ট নম্বর দিতে পারবে?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 13255
+    },
+    {
+      "id": "14",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Fellowship",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Shirin Sultana",
+        "phone": "01711000013",
+        "program": "Fellowship",
+        "reason": "Message explicitly asks about Fellowship suitability for non-technical background, so program is Fellowship and route is Sales; fit for no-coding profile is uncertain and needs team confirmation.",
+        "reply": "Thanks for asking if the Fellowship suits a non-technical marketing manager with 8 years experience. Our team must confirm eligibility and prerequisites for your background. Could you share what goals you have for joining the Fellowship?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 7790
+    },
+    {
+      "id": "15",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Tanvir",
+        "phone": "01711000014",
+        "program": "Unspecified",
+        "reason": "Message asks meaning of add-on and lifetime access with no explicit program, so program is Unspecified and routed to Sales.",
+        "reply": "Add-on ebong lifetime access niye jante cheyechen bujhte perechi, exact details amader team confirm korbe. Apni kon course/program er jonno jante chacchen?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 9218
+    },
+    {
+      "id": "16",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Support",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Habibur Rahman",
+        "phone": "01711000015",
+        "program": "Unspecified",
+        "reason": "Cancellation and refund request routes to Support; no programme named so Unspecified, and refund/payment status needs human verification.",
+        "reply": "We understand you want to cancel your enrolment and request a refund, and sorry for your experience. Our support team must confirm the next steps. Could you please share your payment receipt or enrolment ID so we can check quickly?",
+        "route": "Support",
+        "mode": "live"
+      },
+      "latencyMs": 12310
+    },
+    {
+      "id": "17",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Sales",
+        "language": "Banglish"
+      },
+      "actual": {
+        "language": "Banglish",
+        "name": "Nowshin",
+        "phone": "",
+        "program": "Unspecified",
+        "reason": "Approval status is unverified and no specific programme named, so Unspecified and routed to Sales for team confirmation.",
+        "reply": "Bujhte perechi apni course certificate govt approved kina jante chaichen, ei bishoye amader team confirm korte parbe. Apni kon course niye interested seta janaben ki?allowedValues={\"language\": [\"English\", \"Bangla\", \"Banglish\"], \"program\": [\"Bootcamp\", \"Fellowship\", \"Corporate training\", \"Unspecified\"], \"route\": [\"Sales\", \"Support\", \"Careers\", \"Spam\"]}",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 15462
+    },
+    {
+      "id": "18",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Corporate training",
+        "route": "Sales",
+        "language": "Bangla"
+      },
+      "actual": {
+        "language": "Bangla",
+        "name": "Rezaul Karim (owner, small garment factory)",
+        "phone": "01711000017",
+        "program": "Corporate training",
+        "reason": "Company team enquiry suggests Corporate training but discount availability is not confirmed in message, so routed to Sales for team confirmation.",
+        "reply": "১৫ জনের জন্য গ্রুপ ডিসকাউন্টের বিষয়ে জানতে চাওয়ার জন্য ধন্যবাদ। এ বিষয়ে আমাদের টিমকে নিশ্চিত করে জানাতে হবে। আপনাদের কর্মীদের জন্য কোন বিষয়ে ট্রেনিং প্রয়োজন তা জানাবেন কি?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 24383
+    },
+    {
+      "id": "19",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Fellowship",
+        "route": "Sales",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Samira",
+        "phone": "01711000018",
+        "program": "Fellowship",
+        "reason": "Fellowship explicitly named, instalment enquiry routes to Sales; instalment availability not stated so team confirmation needed.",
+        "reply": "Thanks for asking about paying the fellowship in two instalments. Our team must confirm if that option is available. Could you share your preferred payment timeline?",
+        "route": "Sales",
+        "mode": "live"
+      },
+      "latencyMs": 8192
+    },
+    {
+      "id": "20",
+      "checks": {
+        "name": true,
+        "phone": true,
+        "program": true,
+        "route": true,
+        "language": true
+      },
+      "expected": {
+        "program": "Unspecified",
+        "route": "Careers",
+        "language": "English"
+      },
+      "actual": {
+        "language": "English",
+        "name": "Arif Hossain",
+        "phone": "01711000019",
+        "program": "Unspecified",
+        "reason": "Job-seeker enquiry for AI intern role with no programme identified, so routed to Careers as Unspecified.",
+        "reply": "Thanks for asking about applying as an AI intern. Our recruitment team can confirm the application process, but the team must confirm details for this role. Could you please share your current availability?",
+        "route": "Careers",
+        "mode": "live"
+      },
+      "latencyMs": 18310
+    }
+  ]
+}

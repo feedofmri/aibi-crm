@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-11-03T12:37:10.255Z",
+  "scope": "Three supplied fictional conversations; manual review, not an accuracy benchmark",
+  "results": [
+    {
+      "name": "Rafi Ahmed",
+      "requestedLanguage": "Banglish",
+      "messageCount": 2,
+      "reply": "Walaikum Assalam Rafi, query er jonno thanks. 3 day Bootcamp er updated price ar payment process ta amader team confirm kore janabe. Apni kobe batch e join korte chachen?",
+      "mode": "live"
+    },
+    {
+      "name": "Tahmina Akter",
+      "requestedLanguage": "Bangla",
+      "messageCount": 1,
+      "reply": "ফেলোশিপ প্রোগ্রামে আগ্রহের জন্য ধন্যবাদ। ভর্তি প্রক্রিয়া ও শুরুর তারিখের সঠিক তথ্য আমাদের টিম আপনাকে জানিয়ে দেবে। যোগাযোগের জন্য অনুগ্রহ করে আপনার মোবাইল নম্বরটি শেয়ার করবেন কি?",
+      "mode": "live"
+    },
+    {
+      "name": "Farzana Rahman",
+      "requestedLanguage": "English",
+      "messageCount": 1,
+      "reply": "Thank you, Farzana Rahman. I understand you made a bKash payment on 25 October but did not receive confirmation. Our support team will need to verify this manually. Could you please share your bKash transaction ID?",
+      "mode": "live"
+    }
+  ]
+}

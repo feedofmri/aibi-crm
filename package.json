@@ -1,0 +1,20 @@
+{
+  "name": "biai-crm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A multilingual enquiry workspace for BIAI",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "test": "node --test",
+    "check": "node --check server.js && node --check public/app.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
+  }
+}
