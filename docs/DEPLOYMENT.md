@@ -1,10 +1,10 @@
-# Running and sharing the demo
+# Running and deploying
 
-`http://localhost:5173` (development) or `http://localhost:4000` (production build) work only on the computer running the app. They are not reviewer links. The brief asks for a demo link only "if you have one"; the source, the Loom and the note are what matter.
+`http://localhost:5173` (development) and `http://localhost:4000` (production build) work only on the computer running the app. For a public deployment, see [cpanel-setup.md](cpanel-setup.md).
 
-## Reviewer setup (local)
+## Local setup
 
-Reviewers need Node.js 22+ and Docker:
+You need Node.js 22+ and Docker:
 
 ```bash
 cp .env.example .env

@@ -105,7 +105,7 @@ and 16 for every push and pull request.
 ## Before sharing the links
 
 - The demo accounts and their password are shown on the sign-in page, so anyone with the link can
-  sign in and change data. That suits a reviewer demo; use **account menu → Restore sample data**
+  sign in and change data. That suits a demo; use **account menu → Restore sample data**
   to reset it. For real use, add your own accounts on the Team page and change the demo passwords.
 - The channel key is built into the simulator's JavaScript, so anyone who opens the simulator can
   send test enquiries (rate-limited to 30 a minute). Rotate `CHANNEL_KEY` in both places to revoke it.

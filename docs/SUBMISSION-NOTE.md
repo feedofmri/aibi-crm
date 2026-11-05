@@ -1,9 +1,0 @@
-# BIAI CRM — submission note
-
-**What I built.** An admissions CRM for BIAI on the 20 supplied messages, which become 19 contacts (Rafi’s two messages stay on one contact). Pasting a message extracts the name, phone, programme, queue and language, and drafts a reply in Bangla, Banglish or English for a person to review. Contacts move through New → Contacted → Interested → Paid → Lost on a drag-and-drop board, with a 48-hour follow-up queue, an activity history of who changed what, a weekly brief, and an optional automatic mode. A separate channel-simulator website sends test WhatsApp, Facebook, website and call enquiries into the CRM through an authenticated inbound API. It is a React + TypeScript front end and a Node.js (Express) API on PostgreSQL, with team sign-in and roles, and tests that run against a real database.
-
-**How I used AI.** [Name the tools you actually used and what each did, e.g. “I used ___ to read the brief and plan the build, and ___ to write and debug the React/Node code and tests.” Add one thing you had to correct.] Inside the app, Gemini, Meta or OpenAI returns structured JSON that the server validates. I made the judgement calls: a payment claim never marks a contact Paid; an unclear programme stays “to confirm”; replies never invent prices, dates or venues; code, not the model, calculates the weekly totals.
-
-**What doesn’t work yet.** The app doesn’t send messages, verify payments or connect to WhatsApp or Facebook directly. Reminders are in-app only. Without an AI key, new messages use a weaker, clearly labelled rule-based fallback. The 20/20 extraction match comes from the same samples I tuned the prompts on.
-
-**What I’d fix next.** Add approved programme and fee information so replies can actually answer, then a reviewed WhatsApp integration, then email reminders for overdue follow-ups.

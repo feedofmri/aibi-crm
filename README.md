@@ -2,7 +2,7 @@
 
 An admissions and enquiry CRM for Bangladesh AI (BIAI), plus a separate **channel simulator** website for sending test enquiries into it. It turns WhatsApp, Facebook, website and phone enquiries in Bangla, Banglish and English into reviewed contacts, drafts a reply in the sender's language, moves people through a five-stage pipeline and makes sure nobody waits more than 48 hours for a follow-up.
 
-Built on the 20 supplied fictional messages (19 contacts). Prototype for BIAI's Round 2 task.
+Seeded with 20 fictional sample messages (19 contacts).
 
 | Pipeline | Contact |
 |---|---|
@@ -129,7 +129,7 @@ aibi-crm/
 │   │   └── utils/
 │   ├── scripts/                 evaluate-ai.js (live AI regression), bundle.mjs (cPanel bundle)
 │   └── tests/                   unit/ and integration/ (real PostgreSQL)
-├── docs/                        submission note, QA, deployment, Loom guide, evidence
+├── docs/                        deployment, cPanel setup, QA, brand notes, AI evaluation evidence
 ├── .github/workflows/           ci.yml (tests on PostgreSQL 12 + 16), deploy-cpanel.yml (FTPS deploy)
 ├── docker-compose.yml           PostgreSQL (and optional app container)
 └── Dockerfile                   multi-stage production image
@@ -186,4 +186,4 @@ Extraction uses a strict JSON schema and server-side validation. If a live call 
 
 ## Documentation
 
-[Submission note](docs/SUBMISSION-NOTE.md) · [cPanel setup](docs/cpanel-setup.md) · [QA report](docs/QA.md) · [Requirements audit](docs/REQUIREMENTS-AUDIT.md) · [Deployment](docs/DEPLOYMENT.md) · [Loom guide](docs/LOOM-SCRIPT.md) · [Why this app](docs/WHY-THIS-APP.md) · [Brand notes](docs/BRAND.md)
+[Deployment](docs/DEPLOYMENT.md) · [cPanel setup](docs/cpanel-setup.md) · [QA report](docs/QA.md) · [Brand notes](docs/BRAND.md)
