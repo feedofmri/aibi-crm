@@ -122,3 +122,16 @@ jobs:
           echo "$headers" | grep -qi "access-control-allow-origin: $SIMULATOR_URL" || {
             echo "::error::CORS is not allowed for $SIMULATOR_URL. Set CHANNEL_ALLOWED_ORIGINS=$SIMULATOR_URL in cPanel."; exit 1; }
           echo "Deployed: $CRM_URL and $SIMULATOR_URL"
+
+      # On failure, show what is actually on the server: the uploaded folders and the
+      # end of the app's error log (the repository is private, so this stays private).
+      - name: Server diagnostics
+        if: failure() && steps.creds.outputs.skip != '1' && env.CPANEL_SSH_KEY == ''
+        run: |
+          lf() { lftp -u "$CPANEL_USER","$CPANEL_FTP_PASSWORD" "ftp://$CPANEL_HOST" \
+                   -e "set ftp:ssl-force true; set ssl:verify-certificate ${{ vars.CPANEL_FTP_VERIFY_TLS || 'yes' }}; $1; bye"; }
+          echo "=== FTP login folder (where uploads land)"; lf "pwd; cls -1" || true
+          echo "=== $APP_DIR"; lf "cls -l $APP_DIR" || true
+          echo "=== $SIM_DIR"; lf "cls -l $SIM_DIR" || true
+          echo "=== $APP_DIR/stderr.log (last 60 lines)"
+          lf "get -O /tmp $APP_DIR/stderr.log" >/dev/null 2>&1 && tail -n 60 /tmp/stderr.log || echo "(no stderr.log)"

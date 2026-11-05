@@ -6,7 +6,7 @@
 //
 // Output:
 //   server.mjs        the whole API (Express, pg, bcrypt, ...) in one ES module
-//   app.cjs           cPanel "Setup Node.js App" startup file (Passenger require()s it)
+//   app.cjs, app.js   cPanel "Setup Node.js App" startup file (Passenger require()s it)
 //   migrations/       SQL migrations, applied automatically on start
 //   public/           the built CRM web app, served by the API
 //   tmp/restart.txt   touching it makes Passenger restart the app
@@ -55,15 +55,17 @@ await build({
 cpSync(join(serverRoot, "src/db/migrations"), join(out, "migrations"), { recursive: true });
 cpSync(clientDist, join(out, "public"), { recursive: true, filter: (f) => !f.endsWith(".map") });
 
-writeFileSync(
-  join(out, "app.cjs"),
-  `// cPanel "Setup Node.js App" startup file. Passenger loads it with require().
+// cPanel "Setup Node.js App" startup file. Passenger loads it with require().
+// Written as app.cjs (documented) and app.js (cPanel's default startup file), so
+// the app starts whichever name the Node.js app is set to.
+const startup = `// cPanel "Setup Node.js App" startup file. Passenger loads it with require().
 import("./server.mjs").catch((error) => {
   console.error(error);
   process.exit(1);
 });
-`,
-);
+`;
+writeFileSync(join(out, "app.cjs"), startup);
+writeFileSync(join(out, "app.js"), startup);
 writeFileSync(join(out, "package.json"), JSON.stringify({ name: "biai-crm-deploy", private: true }, null, 2) + "\n");
 mkdirSync(join(out, "tmp"), { recursive: true });
 writeFileSync(join(out, "tmp/restart.txt"), new Date().toISOString() + "\n");
