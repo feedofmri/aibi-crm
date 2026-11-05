@@ -14,9 +14,9 @@
 }
 
 .title {
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-semibold);
-  letter-spacing: -0.02em;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-regular);
+  letter-spacing: -0.025em;
 }
 
 .description {
@@ -40,7 +40,7 @@
   }
 
   .title {
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
   }
 
   .actions > * {

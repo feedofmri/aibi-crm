@@ -56,6 +56,7 @@ export function PipelinePage() {
   return (
     <>
       <PageHeader
+        eyebrow="Admissions"
         title="Pipeline"
         description="Sales enquiries by stage. Drag a card to move it, or open it to reply."
         actions={

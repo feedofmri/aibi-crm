@@ -30,6 +30,7 @@ export function TeamPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Settings"
         title="Team"
         description="Who can sign in, and what each role can do. Changes are credited to the person who made them."
         actions={

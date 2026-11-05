@@ -82,6 +82,7 @@ export function AutomationPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Intake"
         title="Automation"
         description="Extract, classify and draft replies for incoming enquiries. Nothing is ever sent, and payment claims never mark a contact paid."
       />

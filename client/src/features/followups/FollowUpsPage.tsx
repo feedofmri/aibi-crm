@@ -54,6 +54,7 @@ export function FollowUpsPage() {
   return (
     <>
       <PageHeader
+        eyebrow="48-hour rule"
         title="Follow-ups"
         description="Contacts with no logged contact for 48 hours, or whose scheduled follow-up is due. Urgent and support cases come first."
       />

@@ -33,6 +33,7 @@ export function EnquiriesPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Inbox"
         title="All enquiries"
         description="Every contact across sales, support, careers and spam, with the original messages kept."
         actions={

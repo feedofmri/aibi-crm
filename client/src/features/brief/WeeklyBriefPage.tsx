@@ -63,6 +63,7 @@ export function WeeklyBriefPage() {
   return (
     <>
       <PageHeader
+        eyebrow="By the numbers"
         title="Weekly brief"
         description="Enquiries received in a seven-day window, what's outstanding today, and three priorities for the team."
         actions={

@@ -14,7 +14,6 @@ export interface ChatMessage {
 
 interface ChatWindowProps {
   channel: Channel;
-  senderName: string;
   messages: ChatMessage[];
   draft: string;
   sending: boolean;
@@ -31,7 +30,7 @@ const time = (date: Date) => date.toLocaleTimeString("en-GB", { hour: "2-digit",
  * A messaging window seen from the customer's side: one rounded frame whose
  * header and composer are clipped by the same corners.
  */
-export function ChatWindow({ channel, senderName, messages, draft, sending, disabled, error, onDraft, onSend, onClear }: ChatWindowProps) {
+export function ChatWindow({ channel, messages, draft, sending, disabled, error, onDraft, onSend, onClear }: ChatWindowProps) {
   const meta = CHANNEL_META[channel];
   const Icon = meta.icon;
   const scroller = useRef<HTMLDivElement>(null);
@@ -74,7 +73,7 @@ export function ChatWindow({ channel, senderName, messages, draft, sending, disa
         {messages.length > 0 && (
           <button type="button" className={styles.reset} onClick={onClear}>
             <RotateCcw />
-            New chat
+            Clear
           </button>
         )}
       </header>
@@ -85,11 +84,8 @@ export function ChatWindow({ channel, senderName, messages, draft, sending, disa
             <span className={styles.emptyIcon}>
               <Icon />
             </span>
-            <p className={styles.emptyTitle}>Start a {meta.short} conversation</p>
-            <p>
-              Write {senderName ? `as ${senderName.replace(/\s*\(.*\)$/, "")}` : "as a prospective student"} in Bangla, Banglish or
-              English, or load one of the supplied messages.
-            </p>
+            <p className={styles.emptyTitle}>Say hello to BIAI</p>
+            <p>Write in Bangla, Banglish or English, or pick one of the sample enquiries.</p>
           </div>
         ) : (
           <>
@@ -97,9 +93,10 @@ export function ChatWindow({ channel, senderName, messages, draft, sending, disa
             {messages.map((m) => (
               <div key={m.id} className={styles.row} data-from={m.from}>
                 <div className={styles.bubble} data-from={m.from}>
-                  {m.from === "draft" && <span className={styles.draftLabel}>CRM draft reply · not sent</span>}
                   <p>{m.text}</p>
-                  <time className={styles.time}>{time(m.at)}</time>
+                  <time className={styles.time}>
+                    {m.from === "draft" ? `Suggested reply · ${time(m.at)}` : time(m.at)}
+                  </time>
                 </div>
               </div>
             ))}

@@ -20,8 +20,9 @@
 }
 
 .title {
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
+  letter-spacing: -0.015em;
 }
 
 .subtitle {
@@ -31,7 +32,10 @@
 }
 
 .head {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 
 .label {

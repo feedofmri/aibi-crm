@@ -25,10 +25,10 @@
 }
 
 .pitch h1 {
-  font-size: 2.125rem;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  font-weight: var(--weight-semibold);
+  font-size: 2.375rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: var(--weight-regular);
 }
 
 .pitch p {
@@ -107,8 +107,8 @@
 }
 
 .formTitle {
-  font-size: var(--text-2xl);
-  letter-spacing: -0.02em;
+  font-size: var(--text-3xl);
+  letter-spacing: -0.025em;
 }
 
 .formSubtitle {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import icon from "./assets/biai-icon.png";
+import wordmark from "./assets/biai-logo.png";
 import { ChatWindow, type ChatMessage } from "./components/ChatWindow";
 import { ResultPanel } from "./components/ResultPanel";
 import { SenderPanel } from "./components/SenderPanel";
@@ -81,29 +82,18 @@ export function App() {
   return (
     <div className={styles.app}>
       <header className={styles.topbar}>
-        <div className={styles.brand}>
-          <img src={icon} alt="" width={30} height={30} />
-          <div>
-            <strong>Channel Simulator</strong>
-            <span>BIAI Admissions</span>
-          </div>
-        </div>
-        <span className={styles.envBadge}>Test environment · nothing is sent to anyone</span>
-        <div className={styles.topRight}>
-          <span className={styles.status} data-state={connection.state}>
-            <span className={styles.statusDot} />
-            {connection.state === "ready"
-              ? `Connected to CRM · ${info?.ai.mode === "live" ? `live AI (${info.ai.provider})` : "rule-based AI"}`
-              : connection.state === "loading"
-                ? "Connecting…"
-                : "Not connected"}
-          </span>
-          {info && (
-            <a className={styles.crmLink} href={info.crmUrl} target="_blank" rel="noopener noreferrer">
-              Open CRM <ExternalLink />
-            </a>
-          )}
-        </div>
+        <a className={styles.brand} href="/" aria-label="BIAI channel simulator">
+          <img src={icon} alt="" width={28} height={28} />
+          <img className={styles.wordmark} src={wordmark} alt="BIAI" height={12} />
+          <span className={styles.divider} aria-hidden />
+          <span className={styles.product}>Simulator</span>
+        </a>
+        {info && (
+          <a className={styles.crmLink} href={info.crmUrl} target="_blank" rel="noopener noreferrer">
+            Open CRM
+            <ArrowUpRight />
+          </a>
+        )}
       </header>
 
       {connection.state === "error" && (
@@ -117,13 +107,11 @@ export function App() {
       )}
 
       <main className={styles.main}>
-        <div className={styles.intro}>
-          <h1>Write in as a prospective student</h1>
-          <p>
-            Pick a channel and send a message. The CRM receives it through its inbound channel API, extracts the details,
-            routes it and saves it, exactly as it would a real enquiry. Open the CRM to see it arrive.
-          </p>
-        </div>
+        <section className={styles.intro}>
+          <span className="eyebrow">Channel simulator</span>
+          <h1>Write in like a prospective student.</h1>
+          <p>Send a message on any channel and watch it arrive in the admissions CRM, ready for the team to reply.</p>
+        </section>
 
         <div className={styles.layout}>
           <SenderPanel
@@ -141,7 +129,6 @@ export function App() {
           />
           <ChatWindow
             channel={channel}
-            senderName={name}
             messages={messages}
             draft={draft}
             sending={sending}
@@ -151,13 +138,13 @@ export function App() {
             onSend={send}
             onClear={clear}
           />
-          <ResultPanel channel={channel} info={info} sending={sending} result={result} />
+          <ResultPanel sending={sending} result={result} />
         </div>
       </main>
 
       <footer className={styles.footer}>
-        Fictional sample data only · Messages go to the BIAI CRM&apos;s inbound channel API with a channel key · No WhatsApp or
-        Facebook account is connected
+        <span>BIAI Admissions · Channel simulator</span>
+        <span>Messages stay inside the CRM. Nothing is sent to WhatsApp or Facebook.</span>
       </footer>
     </div>
   );

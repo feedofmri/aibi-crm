@@ -43,6 +43,7 @@
 
 .title {
   font-size: var(--text-base);
+  font-weight: var(--weight-medium);
 }
 
 .description {

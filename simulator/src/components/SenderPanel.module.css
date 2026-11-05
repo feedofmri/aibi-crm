@@ -9,9 +9,9 @@
   align-items: center;
   gap: 8px;
   height: 38px;
-  padding: 0 10px;
+  padding: 0 14px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
@@ -80,7 +80,10 @@
 }
 
 .samplesHead {
-  padding: 18px 20px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 20px 10px;
 }
 
 .samples {
