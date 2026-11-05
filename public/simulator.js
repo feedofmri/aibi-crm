@@ -13,6 +13,17 @@ let activeChannel = "WhatsApp";
 let autoReply = true;
 let lastLead = null;
 
+// Show the real backend and AI mode instead of fixed labels.
+fetch("/api/state")
+  .then((r) => r.json())
+  .then((s) => {
+    if ($("#sim-db-label")) $("#sim-db-label").textContent = s.isPg ? "PostgreSQL" : "SQLite";
+    if ($("#sim-ai-label"))
+      $("#sim-ai-label").textContent =
+        s.mode === "live" ? `Live AI extraction (${s.ai.provider})` : "Rule-based extraction (no AI key)";
+  })
+  .catch(() => {});
+
 const PRESETS = {
   rafi: {
     name: "Rafi Ahmed",
@@ -29,8 +40,8 @@ const PRESETS = {
   mahmud: {
     name: "Mahmud Hasan",
     phone: "01711000003",
-    channel: "WhatsApp",
-    message: "We are a 40-person textile company in Gazipur looking for corporate AI training this month.",
+    channel: "Website form",
+    message: "I run a 40-person textile company in Gazipur. We want AI training for our team. Can someone call me this week?",
   },
   habibur: {
     name: "Habibur Rahman",
@@ -45,10 +56,10 @@ const PRESETS = {
     message: "Looking for a job as an AI intern. Where do I apply?",
   },
   spam: {
-    name: "Marketing Bot",
+    name: "Earn Crypto Daily",
     phone: "",
     channel: "Facebook comment",
-    message: "Special discount on automated SEO and social followers! Check link in bio.",
+    message: "Earn 5000 USD every day with our crypto signals! Click bit.ly/xxxx now!!!",
   },
 };
 
@@ -155,7 +166,7 @@ function updateTelemetry(data) {
   $("#res-phone").textContent = lead.phone || "(Not provided)";
   $("#res-id").textContent = lead.id;
   $("#res-thread-type").textContent = data.isNewLead
-    ? "New Lead Created in PostgreSQL"
+    ? "New contact created"
     : `Existing Thread Merged (${lead.messages.length} messages)`;
 
   const routeColors = {
@@ -234,7 +245,7 @@ async function handleSendMessage(e) {
 
     // 4. Update Telemetry
     updateTelemetry(data);
-    toast(`Inbound message synced to PostgreSQL: ${data.lead.name} (${data.lead.route})`);
+    toast(`Saved to CRM: ${data.lead.name} (${data.lead.route})`);
   } catch (err) {
     $("#typing-indicator").hidden = true;
     toast("Error: " + err.message);

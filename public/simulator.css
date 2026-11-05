@@ -989,3 +989,9 @@ body.channel-phone .send-btn { background: #2c3e50; }
   }
 }
 
+
+/* Design fixes: keep the preset picker inside its card */
+.preset-dropdown-wrap { min-width: 0; }
+.preset-dropdown { min-width: 0; width: 100%; text-overflow: ellipsis; }
+.preset-load-btn { flex: 0 0 auto; }
+.preset-quick-chips { display: flex; flex-wrap: wrap; gap: 6px; }

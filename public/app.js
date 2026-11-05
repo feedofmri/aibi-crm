@@ -189,8 +189,8 @@ function render() {
     enquiries: ["All enquiries", "Search contacts and review message history."],
     followups: ["Follow-ups", "Overdue enquiries and scheduled follow-ups."],
     insights: [
-      "Weekly report",
-      "Enquiry volume and outstanding work for the selected week.",
+      "Weekly brief",
+      "Enquiry volume and outstanding work for a chosen week.",
     ],
   };
   $("#metrics").hidden = ["automation", "insights"].includes(view);
@@ -212,10 +212,12 @@ function render() {
   $("#due-count").textContent = state.stats.overdue;
   if ($("#db-mode")) {
     $("#db-mode").textContent = state.isPg ? "PostgreSQL" : "SQLite";
+    $("#db-mode").title = state.db;
     $("#db-mode").className = "mode-pill " + (state.isPg ? "live" : "");
   }
   $("#mode").textContent =
-    state.mode === "live" ? "AI Live" : "Hybrid NLP";
+    state.mode === "live" ? `AI live · ${state.ai.provider}` : "No AI key · rule-based";
+  $("#mode").className = "mode-pill " + (state.mode === "live" ? "live" : "");
   $("#date").textContent = new Date().toLocaleDateString("en-GB", {
     timeZone: "Asia/Dhaka",
     day: "numeric",
@@ -227,10 +229,10 @@ function render() {
   const pendingCount = state.jobs.filter((j) => j.status === "Pending").length;
   if (overdueCount > 0 && view === "followups") {
     $("#mode-banner").hidden = false;
-    $("#mode-banner").innerHTML = `<span><strong>${overdueCount} enquiries</strong> need follow-up contact within SLA (48 hours or scheduled time).</span>`;
+    $("#mode-banner").innerHTML = `<span><strong>${overdueCount} contact${overdueCount === 1 ? "" : "s"}</strong> need follow-up: no logged contact for 48 hours, or a scheduled follow-up is due.</span>`;
   } else if (pendingCount > 0 && view === "automation") {
     $("#mode-banner").hidden = false;
-    $("#mode-banner").innerHTML = `<span><strong>${pendingCount} intake items</strong> awaiting verification before saving.</span>`;
+    $("#mode-banner").innerHTML = `<span><strong>${pendingCount} enquir${pendingCount === 1 ? "y is" : "ies are"}</strong> waiting for review before saving.</span>`;
   } else {
     $("#mode-banner").hidden = true;
     $("#mode-banner").innerHTML = "";
@@ -238,33 +240,33 @@ function render() {
   updateUserUI();
   $("#metrics").innerHTML = [
     [
-      "Unique Contacts",
+      "Contacts",
       state.stats.total,
-      `${state.stats.messages} Total Inbound Enquiries`,
+      `from ${state.stats.messages} enquiries`,
       "all",
     ],
     [
-      "Sales Pipeline",
+      "Sales pipeline",
       state.stats.sales,
-      "Active Admissions Queue",
+      "in the sales queue",
       "sales",
     ],
     [
-      "Follow-ups Due",
+      "Follow-ups due",
       state.stats.overdue,
-      "Requires Attention (48h SLA)",
+      "48-hour rule or scheduled date",
       "followups",
     ],
     [
-      "Support Cases",
+      "Support cases",
       state.stats.support,
-      "Payment & Cancellation Requests",
+      "payment and cancellation issues",
       "support",
     ],
   ]
     .map(
       ([label, n, sub, action], i) =>
-        `<article class="metric ${i === 2 ? "warm" : ""}" data-metric-nav="${action}" role="button" tabindex="0" title="Click to filter by ${label}"><div>${label}</div><strong>${n}</strong><small>${sub}</small></article>`,
+        `<article class="metric ${i === 2 ? "warm" : ""}" data-metric-nav="${action}" role="button" tabindex="0" title="Show ${label.toLowerCase()}"><div>${label}</div><strong>${n}</strong><small>${sub}</small></article>`,
     )
     .join("");
 
@@ -292,7 +294,7 @@ function render() {
     return;
   }
   $("#content").innerHTML =
-    `${view !== "pipeline" ? `<div class="section-head"><div><h2>${view === "enquiries" ? "All enquiries" : "Follow-ups Queue"}</h2><span class="muted">${view === "enquiries" ? "Search across names, messages, phones and notes" : "Urgent and overdue contacts requiring attention"}</span></div></div>` : ""}
+    `
     <div class="filters">
       <div class="filter-inputs">
         <label class="search">
@@ -467,7 +469,7 @@ function renderResults() {
             <td>
               <div class="row-actions">
                 ${view === "followups" ? `<button class="quick-contact-btn" data-quick-contact="${l.id}" title="Log completed contact">${icons.check()} <span>Log contact</span></button>` : ""}
-                ${cleanPhone ? `<a class="icon-link-btn" href="https://wa.me/880${waPhone}?text=${waMsg}" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">${icons.whatsapp()}</a>` : ""}
+                ${cleanPhone ? `<a class="icon-link-btn" href="https://wa.me/880${waPhone}?text=${waMsg}" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" aria-label="WhatsApp ${esc(l.name)}">${icons.whatsapp()}</a>` : `<span class="icon-link-btn placeholder" title="No phone number" aria-hidden="true"></span>`}
                 <button class="icon-button" data-lead="${l.id}" aria-label="Open ${esc(l.name)}">${icons.external()}</button>
               </div>
             </td>
@@ -710,7 +712,7 @@ async function saveContact(id) {
 function openIntake() {
   intakeResult = null;
   $("#intake").innerHTML =
-    `<div class="dialog-header"><span class="eyebrow">NEW ENQUIRY</span><button class="close" data-close="intake-dialog" aria-label="Close intake">×</button></div><h2 id="intake-title">New enquiry</h2><p class="muted">${state.automation.mode === "automatic" ? "Automatic processing is active. Unrecognized queries route to verification." : "Enter or paste the inbound enquiry to extract contact info, course intent, and route to admissions."}</p><label>Enquiry Scenario Preset <small>(optional)</small><select id="sample-picker"><option value="">Select a scenario preset…</option>${state.samples.map((s) => `<option value="${s.id}">#${s.id} · ${esc(s["sender name"])}</option>`).join("")}</select></label><form id="intake-form"><div class="form-grid"><label>Source<select name="channel">${option(["WhatsApp", "Facebook Messenger", "Facebook comment", "Website form", "Phone call note"], "WhatsApp")}</select></label><label>Sender name <small>if provided</small><input name="name" maxlength="200"></label><label>Phone <small>if provided</small><input name="phone" inputmode="tel"></label></div><label>Original message<textarea name="message" rows="5" maxlength="8000" required placeholder="Paste or type the prospect enquiry…"></textarea></label><button class="primary" type="submit">${icons.aiSpark()} ${state.automation.mode === "automatic" ? "Process enquiry" : "Extract details & draft reply"}</button><button class="text-button" type="button" id="manual-entry">Enter details manually</button><p class="helper">${state.automation.mode === "automatic" ? "Complete sales enquiries are saved automatically. Exceptions require manual verification." : "NLP pipeline parses course interest, language, and extracts contact fields with instant reply draft."}</p></form><div id="extracted"></div>`;
+    `<div class="dialog-header"><span class="eyebrow">NEW ENQUIRY</span><button class="close" data-close="intake-dialog" aria-label="Close intake">×</button></div><h2 id="intake-title">New enquiry</h2><p class="muted">${state.automation.mode === "automatic" ? "Automatic processing is active. Unrecognized queries route to verification." : "Paste an enquiry, or pick a supplied sample, to extract the details and draft a reply."}</p><label>Supplied sample message <small>optional</small><select id="sample-picker"><option value="">Choose one of the 20 supplied messages…</option>${state.samples.map((s) => `<option value="${s.id}">#${s.id} · ${esc(s["sender name"])}</option>`).join("")}</select></label><form id="intake-form"><div class="form-grid"><label>Source<select name="channel">${option(["WhatsApp", "Facebook Messenger", "Facebook comment", "Website form", "Phone call note"], "WhatsApp")}</select></label><label>Sender name <small>if provided</small><input name="name" maxlength="200"></label><label>Phone <small>if provided</small><input name="phone" inputmode="tel"></label></div><label>Original message<textarea name="message" rows="5" maxlength="8000" required placeholder="Paste or type the prospect enquiry…"></textarea></label><button class="primary" type="submit">${icons.aiSpark()} ${state.automation.mode === "automatic" ? "Process enquiry" : "Extract details & draft reply"}</button><button class="text-button" type="button" id="manual-entry">Enter details manually</button><p class="helper">${state.automation.mode === "automatic" ? "Complete sales enquiries are saved automatically. Exceptions require manual verification." : "Extracts name, phone, programme, queue and language, then drafts a reply for you to review before saving."}</p></form><div id="extracted"></div>`;
   bindClose();
   $("#intake-dialog").showModal();
   $("#sample-picker").onchange = (e) => {
@@ -817,7 +819,7 @@ function renderExtracted() {
 }
 function renderInsights() {
   $("#content").innerHTML =
-    `<div class="brief-grid"><section class="brief-panel"><div class="eyebrow">THE WEEKLY BRIEF</div><h2>Reporting period</h2><p>Weekly summary of inbound enquiries, route breakdown, and 48-hour follow-up priorities.</p><label>Week ending <small>Asia/Dhaka</small><input id="week-ending" type="date" value="2026-11-01"></label><button class="primary" id="generate-summary">${icons.aiSpark()} Create report</button><p class="helper">Calculates lead velocity, programme demand, and overdue SLA status across the chosen 7-day reporting period.</p></section><section class="summary-panel"><div class="section-head"><h3>Summary</h3><div class="summary-header-actions"><button class="secondary small-btn" id="copy-summary" style="display:none;" type="button">${icons.clipboard()} Copy report</button><span class="mode-pill">${state.mode === "live" ? "AI Engine" : "Rule-based"}</span></div></div><div id="summary-output">${icons.activity()}<h3>No report generated</h3><p>Select a week ending date, then click Create report.</p></div></section></div>`;
+    `<div class="brief-grid"><section class="brief-panel"><div class="eyebrow">WEEKLY BRIEF</div><h2>Reporting period</h2><p>Enquiries received in the seven days ending on the chosen date, plus follow-ups outstanding today.</p><label>Week ending <small>Asia/Dhaka</small><input id="week-ending" type="date" value="2026-11-01"></label><button class="primary" id="generate-summary">${icons.aiSpark()} Create report</button><p class="helper">Totals are calculated from the data. Priorities come from live AI when a key is configured, otherwise from simple rules.</p></section><section class="summary-panel"><div class="section-head"><h3>Summary</h3><div class="summary-header-actions"><button class="secondary small-btn" id="copy-summary" style="display:none;" type="button">${icons.clipboard()} Copy report</button><span class="mode-pill ${state.mode === "live" ? "live" : ""}">${state.mode === "live" ? "Live AI" : "Rule-based"}</span></div></div><div id="summary-output">${icons.activity()}<h3>No report generated</h3><p>Select a week ending date, then click Create report.</p></div></section></div>`;
   $("#generate-summary").onclick = (e) =>
     act(e.target, async () => {
       const result = await api("summary", "POST", {
@@ -849,8 +851,8 @@ function openAuthDialog() {
 
     dlg.querySelector("#auth-box").innerHTML = `
       <div class="auth-header">
-        <h2 id="auth-title">Team Identity & Access</h2>
-        <button class="icon-button" id="close-auth-btn" aria-label="Close dialog">&times;</button>
+        <h2 id="auth-title">Team member</h2>
+        <button class="close" id="close-auth-btn" aria-label="Close dialog">×</button>
       </div>
 
       ${currentUser ? `
@@ -862,18 +864,18 @@ function openAuthDialog() {
           </div>
         </div>
       ` : `
-        <p class="helper">You are currently operating in guest mode. Select a team identity below or sign in.</p>
+        <p class="helper">You are not signed in. Choose a team member below or sign in.</p>
       `}
 
       <div class="auth-tabs">
-        <button class="auth-tab ${activeTab === "switch" ? "active" : ""}" data-tab="switch">Switch Team Account</button>
+        <button class="auth-tab ${activeTab === "switch" ? "active" : ""}" data-tab="switch">Switch member</button>
         <button class="auth-tab ${activeTab === "login" ? "active" : ""}" data-tab="login">Sign In</button>
-        <button class="auth-tab ${activeTab === "register" ? "active" : ""}" data-tab="register">New Member</button>
+        <button class="auth-tab ${activeTab === "register" ? "active" : ""}" data-tab="register">Add member</button>
       </div>
 
       <div id="auth-tab-content">
         ${activeTab === "switch" ? `
-          <p class="helper">Switch to any team member identity instantly to review permissions and audit trail logs:</p>
+          <p class="helper">Changes you make are credited to this person in each contact's activity history. Demo accounts only; this does not restrict access.</p>
           <div class="user-chips">
             ${defaultUsers.map(u => `
               <button class="user-chip ${currentUser?.email === u.email ? "active" : ""}" data-quick-user="${u.email}" data-quick-pass="${u.pass}">
@@ -1049,7 +1051,7 @@ window.addEventListener("beforeunload", (e) => {
 
 function renderAutomation() {
   $("#content").innerHTML =
-    `<section class="automation-settings"><label>Processing mode<select id="automation-mode"><option value="manual" ${state.automation.mode === "manual" ? "selected" : ""}>Manual verification</option><option value="automatic" ${state.automation.mode === "automatic" ? "selected" : ""}>Automatic with exception review</option></select></label><p class="helper">Automatic: extract, classify, draft, save complete sales enquiries and schedule follow-up in 48 hours. Missing details, non-sales enquiries and existing contacts require verification. Manual: review every result before saving. No messages are sent and payment claims never change a contact to Paid.</p><button class="secondary" id="process-samples">${icons.aiSpark()} Run Inbound Batch Ingestion</button><p id="batch-progress" role="status"></p></section><div class="section-head"><h2>Processing history</h2><span class="muted">${state.jobs.filter((j) => j.status === "Pending").length} awaiting verification</span></div><div class="automation-jobs">${state.jobs.length ? [...state.jobs].sort((a,b)=>(a.status === "Pending" ? -1 : 0)-(b.status === "Pending" ? -1 : 0)).map((j) => `<article class="automation-job"><div class="section-head"><h3>${esc(j.input.name || "Unknown sender")}</h3><span class="stage-badge job-${esc(j.status.toLowerCase())}">${esc(j.status === "Completed" ? "Saved automatically" : j.status === "Pending" ? "Needs review" : j.status)}</span></div><p>${esc(j.input.message)}</p><small>${esc(j.input.channel)} · ${esc(j.mode)} · ${fmt(j.createdAt)}</small>${j.error ? `<p class="action-error">${esc(j.error)}</p>` : ""}${j.status === "Pending" ? `<p class="helper">${esc(j.reasons.join(" · ") || "Manual verification selected")}</p><details class="review-details"><summary>Review details and reply</summary><form data-review="${j.id}">${formFields(j.result, "intake")}<label>Reply draft<textarea name="reply" rows="3">${esc(j.result.reply)}</textarea></label><div class="form-actions"><button class="primary" type="submit">Approve & save</button><button class="secondary" type="button" data-reject="${j.id}">Reject</button></div></form></details>` : ""}${j.leadId ? `<button class="text-button" data-open="${j.leadId}">Open saved contact</button>` : ""}${j.status === "Failed" ? `<button class="secondary" data-retry="${j.id}">Retry processing</button>` : ""}</article>`).join("") : '<p class="empty-state">No batch runs recorded yet. Process new enquiries or run inbound ingestion above.</p>'}</div>`;
+    `<section class="automation-settings"><label>Processing mode<select id="automation-mode"><option value="manual" ${state.automation.mode === "manual" ? "selected" : ""}>Manual verification</option><option value="automatic" ${state.automation.mode === "automatic" ? "selected" : ""}>Automatic with exception review</option></select></label><p class="helper">Automatic: extract, classify, draft, save complete sales enquiries and schedule follow-up in 48 hours. Missing details, non-sales enquiries and existing contacts require verification. Manual: review every result before saving. No messages are sent and payment claims never change a contact to Paid.</p><button class="secondary" id="process-samples">${icons.aiSpark()} Process all 20 sample messages</button><p id="batch-progress" role="status"></p></section><div class="section-head"><h2>Processing history</h2><span class="muted">${state.jobs.filter((j) => j.status === "Pending").length} awaiting verification</span></div><div class="automation-jobs">${state.jobs.length ? [...state.jobs].sort((a,b)=>(a.status === "Pending" ? -1 : 0)-(b.status === "Pending" ? -1 : 0)).map((j) => `<article class="automation-job"><div class="section-head"><h3>${esc(j.input.name || "Unknown sender")}</h3><span class="stage-badge job-${esc(j.status.toLowerCase())}">${esc(j.status === "Completed" ? "Saved automatically" : j.status === "Pending" ? "Needs review" : j.status)}</span></div><p>${esc(j.input.message)}</p><small>${esc(j.input.channel)} · ${esc(j.mode)} · ${fmt(j.createdAt)}</small>${j.error ? `<p class="action-error">${esc(j.error)}</p>` : ""}${j.status === "Pending" ? `<p class="helper">${esc(j.reasons.join(" · ") || "Manual verification selected")}</p><details class="review-details"><summary>Review details and reply</summary><form data-review="${j.id}">${formFields(j.result, "intake")}<label>Reply draft<textarea name="reply" rows="3">${esc(j.result.reply)}</textarea></label><div class="form-actions"><button class="primary" type="submit">Approve & save</button><button class="secondary" type="button" data-reject="${j.id}">Reject</button></div></form></details>` : ""}${j.leadId ? `<button class="text-button" data-open="${j.leadId}">Open saved contact</button>` : ""}${j.status === "Failed" ? `<button class="secondary" data-retry="${j.id}">Retry processing</button>` : ""}</article>`).join("") : '<p class="empty-state">Nothing processed yet. Submit a new enquiry, or process the sample messages above.</p>'}</div>`;
   $("#automation-mode").onchange = (e) =>
     act(e.target, async () => {
       await api("automation/settings", "POST", { mode: e.target.value });

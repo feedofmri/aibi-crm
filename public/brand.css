@@ -2093,3 +2093,77 @@ input::placeholder, textarea::placeholder { color: #82766a; }
   }
 }
 
+
+/* ==========================================================================
+   Design fixes (Nov 2026 review). Kept as one final layer so it overrides the
+   earlier rules above; see docs/QA.md for the issues it addresses.
+   ========================================================================== */
+
+/* Metrics: one joined strip, no nested card borders or hover jump */
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid #e3ded7; border-radius: 10px; overflow: hidden; background: #fff; }
+.metric, .metric.warm { border: 0 !important; border-right: 1px solid #ece6de !important; border-radius: 0 !important; box-shadow: none !important; background: #fff; padding: 18px 22px; min-width: 0; }
+.metric:last-child { border-right: 0 !important; }
+.metric:hover { transform: none !important; background: #fdfaf6 !important; }
+.metric > div { font-size: 13px; font-weight: 500; color: #4f4a44; }
+.metric > small { font-size: 12px; color: #7a7168; }
+
+/* Pipeline board: all five stages fit on a laptop screen, cards never clip */
+@media (min-width: 1101px) {
+  .board { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; overflow-x: visible; }
+}
+.column { min-width: 0; }
+.lead-card { min-width: 0; overflow: hidden; }
+.lead-card .card-top { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.lead-card .channel-chip { min-width: 0; overflow: hidden; }
+.lead-card .channel-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lead-card .thread-count, .lead-card .card-more { flex: 0 0 auto; }
+.lead-card .card-more { margin-left: auto; }
+.lead-card h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lead-card .message-preview { overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; min-width: 0; }
+.card-owner { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-actions { flex-wrap: wrap; gap: 6px; }
+.card-action-btn { padding: 6px 8px; min-height: 28px; }
+.card-action-btn.wa-btn span, .card-action-btn.call-btn span { display: none; }
+.card-action-btn.advance-btn { margin-left: auto; }
+
+/* Table actions: fixed slots so the open button lines up on every row */
+.row-actions { justify-content: flex-end; }
+.row-actions .icon-link-btn, .row-actions .icon-button { width: 36px; height: 36px; min-width: 36px; min-height: 36px; padding: 0; border-radius: 8px; box-sizing: border-box; }
+.row-actions .icon-link-btn.placeholder { visibility: hidden; }
+.quick-contact-btn { white-space: nowrap; }
+
+/* Team member dialog: same close button as other dialogs, roles under names */
+.auth-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.user-chip > div { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.user-chip strong { font-size: 13px; }
+.user-chip small { color: #7a7168; }
+
+/* Header status pills */
+.mode-pill:empty { display: none; }
+
+/* Mobile */
+@media (max-width: 760px) {
+  .metrics { grid-template-columns: 1fr 1fr; gap: 0 !important; }
+  .metric { margin: 0 !important; }
+  .metric:nth-child(2n) { border-right: 0 !important; }
+  .metric:nth-child(-n+2) { border-bottom: 1px solid #ece6de !important; }
+  .metric { padding: 14px 16px; }
+  .topbar { height: auto; padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
+  .topbar > div:first-child { display: none; }
+  .topbar-right { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; justify-content: flex-start; }
+  .topbar-right .top-date { display: none; }
+  .heading { flex-wrap: wrap; gap: 12px; }
+  .sidebar nav { mask-image: linear-gradient(90deg, #000 85%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .sidebar-bottom .profile { margin: 8px 0 0; }
+}
+
+/* Sidebar stays full height beside long pages (sticky instead of fixed) */
+@media (min-width: 761px) {
+  body:not(.simulator-body) { display: flex; align-items: flex-start; background: linear-gradient(90deg, #fff 0 215px, var(--line, #e3ded7) 215px 216px, transparent 216px), var(--paper, #faf7f2); }
+  .sidebar { position: sticky !important; top: 0; height: 100vh; flex: 0 0 216px; }
+  .shell { margin-left: 0 !important; flex: 1 1 auto; min-width: 0; }
+}
+
+/* Respect the hidden attribute on sections the views toggle */
+.metrics[hidden], .notice[hidden] { display: none !important; }

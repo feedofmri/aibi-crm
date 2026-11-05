@@ -19,11 +19,11 @@
         </a>
         <div class="sim-title-group">
           <h1>Inbound Channel Simulator</h1>
-          <span class="sim-badge">Admissions Simulation Engine</span>
+          <span class="sim-badge">Test messages only · nothing is sent</span>
         </div>
       </div>
       <div class="sim-header-right">
-        <span class="db-indicator-pill"><span class="pulse-dot"></span> PostgreSQL Active</span>
+        <span class="db-indicator-pill" id="sim-db"><span class="pulse-dot"></span> <span id="sim-db-label">Database</span></span>
         <a href="/" target="_blank" class="crm-link-btn" title="Open Admissions Workspace">Admissions Workspace &rarr;</a>
       </div>
     </header>
@@ -48,7 +48,7 @@
       <!-- Left Config & Controls -->
       <aside class="sim-sidebar">
         <div class="sim-card">
-          <h2 class="sim-card-title">Inbound Channel</h2>
+          <h2 class="sim-card-title">Channel</h2>
           <div class="channel-grid">
             <button class="channel-btn active" data-channel="WhatsApp">
               <span class="ch-icon whatsapp">
@@ -84,7 +84,7 @@
         </div>
 
         <div class="sim-card">
-          <h2 class="sim-card-title">Prospect Profile</h2>
+          <h2 class="sim-card-title">Sender</h2>
           <label class="sim-input-label">
             <span>Sender Name</span>
             <input type="text" id="sender-name" value="Rafi Ahmed" placeholder="e.g. Nusrat Jahan" />
@@ -103,8 +103,8 @@
 
         <div class="sim-card">
           <div class="sim-card-header-row">
-            <h2 class="sim-card-title">Scenario Presets</h2>
-            <span class="sim-card-tag">6 Pre-configured</span>
+            <h2 class="sim-card-title">Sample messages</h2>
+            <span class="sim-card-tag">6 from the brief</span>
           </div>
           <div class="preset-dropdown-wrap">
             <select id="preset-select" class="preset-dropdown" aria-label="Select scenario preset">
@@ -113,7 +113,7 @@
               <option value="mahmud">Mahmud Hasan — Corporate Training (English · Sales)</option>
               <option value="habibur">Habibur Rahman — Refund Complaint (Support · Urgent)</option>
               <option value="job">Arif Hossain — AI Intern Job (Careers Queue)</option>
-              <option value="spam">Marketing Bot — Follower Promotion (Spam Quarantine)</option>
+              <option value="spam">Earn Crypto Daily — Promotion (Spam)</option>
             </select>
             <button type="button" id="load-preset-btn" class="preset-load-btn" title="Load selected preset into chat">Load</button>
           </div>
@@ -144,7 +144,7 @@
 
           <div class="chat-messages" id="chat-messages">
             <div class="system-bubble">
-              <span>Inbound channel active. Messages received here are processed through automated entity extraction and synced directly to PostgreSQL CRM.</span>
+              <span>Type a message as a prospect. It is extracted, routed and saved to the CRM exactly like a real enquiry. No real WhatsApp or Facebook account is connected.</span>
             </div>
           </div>
 
@@ -174,21 +174,21 @@
       <aside class="sim-telemetry">
         <div class="telemetry-card">
           <div class="telemetry-header">
-            <h2>Real-Time CRM Intake</h2>
-            <span class="live-dot" title="Live Database Synchronization">● Active</span>
+            <h2>CRM intake</h2>
+            
           </div>
 
           <div id="telemetry-empty" class="telemetry-empty-pipeline">
             <div class="pipeline-flow-header">
-              <span class="pipeline-status-badge"><span class="pulse-dot"></span> Pipeline Ready</span>
-              <p>End-to-End Real-Time Ingestion Architecture</p>
+              <span class="pipeline-status-badge"><span class="pulse-dot"></span> Ready</span>
+              <p>What happens when you press Send</p>
             </div>
             <div class="pipeline-steps">
               <div class="pipeline-step">
                 <div class="step-num">1</div>
                 <div class="step-info">
-                  <strong>Omnichannel Inbound Stream</strong>
-                  <span>WhatsApp, Messenger, Form & Call webhooks</span>
+                  <strong>Simulated channel message</strong>
+                  <span>WhatsApp, Messenger, comment, form or call note</span>
                 </div>
               </div>
               <div class="pipeline-connector">
@@ -197,8 +197,8 @@
               <div class="pipeline-step">
                 <div class="step-num">2</div>
                 <div class="step-info">
-                  <strong>Hybrid NLP & Gemini 2.5 Flash</strong>
-                  <span>Route, programme, intent & Banglish translation</span>
+                  <strong id="sim-ai-label">Extraction & reply draft</strong>
+                  <span>Queue, programme, language and a reply draft</span>
                 </div>
               </div>
               <div class="pipeline-connector">
@@ -207,14 +207,14 @@
               <div class="pipeline-step">
                 <div class="step-num">3</div>
                 <div class="step-info">
-                  <strong>PostgreSQL Persistence & 48h SLA</strong>
-                  <span>Atomic upsert into <code>biai_crm</code> + draft reply</span>
+                  <strong>Saved to the CRM with a 48-hour follow-up</strong>
+                  <span id="sim-db-detail">Same phone number joins the existing contact</span>
                 </div>
               </div>
             </div>
             <div class="pipeline-hint">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4511a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-              <span>Select a preset on the left or send a message to trigger instant live extraction.</span>
+              <span>Pick a preset on the left or type a message, then press Send.</span>
             </div>
           </div>
 
@@ -246,7 +246,7 @@
               <div class="telemetry-box" id="res-db-box">
                 <div class="res-item"><b>Contact Name:</b> <span id="res-name">-</span></div>
                 <div class="res-item"><b>Phone:</b> <span id="res-phone">-</span></div>
-                <div class="res-item"><b>PostgreSQL ID:</b> <code id="res-id">-</code></div>
+                <div class="res-item"><b>Record ID:</b> <code id="res-id">-</code></div>
                 <div class="res-item"><b>Thread Type:</b> <span id="res-thread-type">New Lead Created</span></div>
               </div>
             </div>
