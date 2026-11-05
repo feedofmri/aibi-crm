@@ -1,0 +1,52 @@
+.channelIcon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--color-text-tertiary);
+}
+
+.muted {
+  color: var(--color-text-tertiary);
+}
+
+.unclear {
+  color: var(--amber-700);
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.contactText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contactName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.contactMeta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  line-height: 1.3;
+}
+
+.missing {
+  color: var(--amber-700);
+}

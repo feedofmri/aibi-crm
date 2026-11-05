@@ -1,0 +1,39 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wordmark {
+  width: auto;
+  height: 12px;
+}
+
+.subtitle {
+  font-size: 11px;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+}
+
+.inverted .wordmark {
+  filter: invert(1);
+}
+
+.inverted .subtitle {
+  color: rgba(255, 255, 255, 0.6);
+}

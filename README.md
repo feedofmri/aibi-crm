@@ -1,166 +1,174 @@
-# BIAI Admissions CRM — Production Full-Stack Platform
+# BIAI Admissions CRM
 
-A complete, production-grade Admissions & Enquiry Management CRM platform custom-built for Bangladesh AI (BIAI). It transforms inbound multilingual enquiries into structured contacts, generates contextual response drafts in Bangla, Banglish, and English, enforces 48-hour follow-up SLAs, tracks student progression through a 5-stage sales pipeline, and provides full auditability with team authentication.
+An admissions and enquiry CRM for Bangladesh AI (BIAI). It turns WhatsApp, Facebook, website and phone enquiries in Bangla, Banglish and English into reviewed contacts, drafts a reply in the sender's language, moves people through a five-stage pipeline and makes sure nobody waits more than 48 hours for a follow-up.
 
----
+Built on the 20 supplied fictional messages (19 contacts). Prototype for BIAI's Round 2 task.
 
-## Architecture & Technology Stack
+| Pipeline | Contact |
+|---|---|
+| ![Pipeline board](docs/screenshots/pipeline.jpg) | ![Contact panel](docs/screenshots/contact.jpg) |
+| **Follow-ups** | **Channel simulator** |
+| ![Follow-ups](docs/screenshots/follow-ups.jpg) | ![Channel simulator](docs/screenshots/simulator.jpg) |
 
-- **Backend:** Node.js 24 (`node:http`, RESTful API, zero external HTTP frameworks for minimal attack surface).
-- **Primary Database:** **PostgreSQL** relational database (`boraq-postgres` on port `5432`, database: `biai_crm`).
-  - Tables: `users`, `leads`, `messages`, `audit_logs`, `settings`, `automation_jobs`.
-  - Full relational integrity, transactions, and foreign key cascades.
-- **Fail-Safe Fallback:** Embedded SQLite store (`lib/store.js`) for lightweight test runners and environments without active PostgreSQL.
-- **Authentication & Security:**
-  - Password hashing with **`bcryptjs`** (salt rounds: 10).
-  - Stateless API authentication via signed **JWT tokens** (`jsonwebtoken`).
-  - Role-Based Access Control (RBAC): `Admin`, `Admissions`, `Support`, `Sales`.
-  - Every update, stage change, and contact log is attributed to the authenticated team member in the audit trail.
-- **Frontend:** Vanilla modern JavaScript, semantic HTML5, responsive CSS with official BIAI typography (`Hind Siliguri` & `Inter`).
+| Stack | |
+|---|---|
+| **Client** | React 19, TypeScript, Vite, React Router, TanStack Query, CSS Modules with design tokens, lucide icons |
+| **Server** | Node.js 22+, Express 5, layered modules (routes → services → repositories), zod validation, helmet, rate limiting |
+| **Database** | PostgreSQL 16 with versioned SQL migrations |
+| **Auth** | Email + password (bcrypt), JWT session in an httpOnly SameSite cookie, role checks on the API |
+| **AI** | Gemini, Meta or OpenAI structured JSON output; labelled rule-based fallback when no key is set |
+| **Tests** | `node:test`: unit tests plus API integration tests against a real PostgreSQL database |
 
----
+## Quick start
 
-## Live System & Quick Start
+Requirements: Node.js 22+, and Docker (or your own PostgreSQL 16).
 
-The platform is running live and accessible on the local network:
+```bash
+cp .env.example .env
+```
 
-🔗 **URL:** [http://127.0.0.1:3000](http://127.0.0.1:3000)
+```bash
+npm install
+```
 
-### Pre-Seeded Team Accounts
+```bash
+npm run db:up
+```
 
-| Name | Email | Role | Default Password |
-|---|---|---|---|
-| **Admin BIAI** | `admin@biai.com.bd` | `Admin` | `Admin123!` |
-| **Tanvir Ahmed** | `tanvir@biai.com.bd` | `Admissions` | `Admin123!` |
-| **Ayesha Siddiqua** | `ayesha@biai.com.bd` | `Support` | `Admin123!` |
-| **Rahim Chowdhury** | `rahim@biai.com.bd` | `Sales` | `Admin123!` |
+```bash
+npm run dev
+```
 
-*(You can also use the in-app "Team Identity" dialog to switch between team accounts with one click or register new team members).*
+Already running PostgreSQL? Skip `npm run db:up`, create a `biai_crm` database and set `DATABASE_URL` in `.env`.
 
----
+Open http://localhost:5173 and pick a demo account. The API runs on :4000; Vite proxies `/api` to it. On first start the server applies migrations, creates the demo team and imports the 20 sample enquiries.
 
-## Running Locally
+**Demo accounts** (fictional, password `Admin123!`): `admin@biai.com.bd` (Admin), `tanvir@biai.com.bd` (Admissions), `ayesha@biai.com.bd` (Support), `rahim@biai.com.bd` (Sales).
 
-```powershell
-# 1. Start PostgreSQL (e.g. using Boraq Docker container or native PostgreSQL)
-docker start boraq-postgres
+Production build (one process serves the API and the built client on :4000):
 
-# 2. Enter CRM directory and start server
-cd "E:\AI Engineer\LLM Apps\Active\BIAI-AI-Intern-Round2-Pack\biai-crm"
+```bash
+npm run build
+```
+
+```bash
 npm start
 ```
 
-Open **http://127.0.0.1:3000** in your browser.
+Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up --build`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
----
+## What it does
 
-## Core Functional Modules (Task 1 Scope)
+- **Pipeline:** New → Contacted → Interested → Paid → Lost. Drag cards between stages (saved immediately, with an activity entry), or switch to a list.
+- **All enquiries:** every contact across Sales, Support, Careers and Spam, filterable by queue, programme, owner and text.
+- **Follow-ups:** contacts with no logged contact for 48 hours, or whose scheduled date has passed, grouped Urgent → Support → Sales, with one-click **Log contact**. Delay is graded (due today, overdue, more than 3 days overdue).
+- **Contact panel:** the original conversation and the reply draft first; owner, stage, priority, next action, scheduled follow-up and contact details beside it; an activity history showing who changed what.
+- **New enquiry:** paste a message (or pick a supplied sample) → extracted details and a draft reply → review and save. A matching phone number joins the existing contact; blank phones never merge.
+- **Weekly brief:** calculated totals for any seven Dhaka days, programme interest, support cases and three priorities (live AI or rules), copyable as text.
+- **Automation:** manual review, or automatic saving of complete new sales enquiries with every exception held for a person.
+- **Channel simulator:** type as a prospect on a simulated channel; the message is processed and saved like a real enquiry. Nothing is sent.
+- **Team:** members and roles. Admins add members, delete contacts and restore the sample data.
 
-1. **Native Drag-and-Drop Pipeline:**
-   - 5 standard stages: `New` → `Contacted` → `Interested` → `Paid` → `Lost`.
-   - Native HTML5 drag-and-drop between columns with real-time PostgreSQL persistence.
-   - List view toggle with multi-attribute filtering (Programme, Queue, Owner).
+### Deliberate boundaries
 
-2. **All Enquiries & Contact Workspace:**
-   - Detailed history showing all messages in the conversation thread.
-   - 1-click **WhatsApp Chat** (`wa.me`) with pre-filled drafted reply.
-   - 1-click **Direct Call** (`tel:`).
-   - Audit trail capturing timestamps and team member attributions for every change.
-   - Lead deletion support.
+- Nothing is ever sent to a customer. WhatsApp and call buttons open the person's own app.
+- A reported payment never marks a contact Paid; support cases always need a person.
+- Replies never promise prices, dates, venues, refunds or approvals; the team confirms those.
+- Unknown programmes stay "to confirm"; missing phones stay blank and are flagged.
+- Without an AI key, the 20 supplied messages use labelled, human-reviewed interpretations, and other text uses a clearly labelled rule-based extractor. Nothing pretends to be live AI.
 
-3. **48-Hour SLA Follow-Up Queue:**
-   - Automatically tracks contacts where last touchpoint exceeds 48 hours, or scheduled follow-up is overdue.
-   - Urgent cases and unresolved support inquiries prioritized at the top.
-   - 1-click **Log completed contact** records outreach and updates SLA timestamp.
+## Project structure
 
-4. **AI & Hybrid NLP Message Intake:**
-   - Extracts sender name, contact phone, intended programme (`Bootcamp`, `Fellowship`, `Corporate training`), queue (`Sales`, `Support`, `Careers`, `Spam`), and language (`Bangla`, `English`, `Banglish`).
-   - Supports both Live AI (Meta Muse-Spark / OpenAI via `.env`) and deterministic offline hybrid NLP for 100% reliable local demoing.
-   - Safeguards: duplicate phone numbers automatically append enquiries to existing contacts rather than creating orphan duplicates.
-
-5. **Executive Weekly Briefs:**
-   - Analyzes weekly volumes, queue distributions, overdue SLAs, and high-priority notes for any chosen 7-day period.
-   - One-click clipboard export for reporting to leadership.
-
-6. **Selectable Automation:**
-   - **Manual mode:** Human reviews and verifies every extracted enquiry before saving.
-   - **Automatic mode:** Automatically processes and saves complete sales enquiries while routing exceptions (missing phone, support, spam, careers) to a review queue.
-
----
-
-## Verification & Testing
-
-Run the full automated test suite covering PostgreSQL persistence, JWT auth, SLA boundaries, duplicate handling, and HTTP APIs:
-
-```powershell
-cd "E:\AI Engineer\LLM Apps\Active\BIAI-AI-Intern-Round2-Pack\biai-crm"
-npm run check
-npm test
+```
+aibi-crm/
+├── client/                      React + TypeScript web app
+│   ├── index.html
+│   ├── vite.config.ts           dev proxy /api → :4000, "@" alias
+│   └── src/
+│       ├── app/                 App root, router, 404
+│       ├── api/                 typed fetch client and endpoint functions
+│       ├── assets/              brand logo and local fonts
+│       ├── components/
+│       │   ├── ui/              design-system primitives (Button, Badge, Field, Dialog, Sheet, Menu, Toast…)
+│       │   └── layout/          AppShell, Sidebar, PageHeader, Logo
+│       ├── features/            one folder per product area
+│       │   ├── auth/            session provider, route guards, sign-in page
+│       │   ├── pipeline/        Kanban board and page
+│       │   ├── enquiries/  followups/  brief/  automation/  team/  simulator/
+│       │   ├── contact/         contact panel: conversation, reply, details, activity
+│       │   ├── intake/          New enquiry dialog
+│       │   └── leads/           shared table, toolbar, filters and badges
+│       ├── hooks/               TanStack Query hooks, URL-driven contact panel
+│       ├── lib/                 formatting (Asia/Dhaka), follow-up rules, helpers
+│       ├── styles/              design tokens and base styles
+│       └── types/               shared TypeScript types
+├── server/                      Express API
+│   ├── src/
+│   │   ├── index.js             bootstrap: connect, migrate, seed, listen, graceful shutdown
+│   │   ├── app.js               Express app and dependency wiring
+│   │   ├── config/env.js        validated configuration
+│   │   ├── db/                  pool, migration runner, migrations/*.sql, seed, CLI
+│   │   ├── middleware/          authentication, roles, validation, same-origin, errors
+│   │   ├── modules/             auth, users, leads, intake, automation, reports, simulator, meta, admin
+│   │   │                        (each: *.routes.js → *.service.js → *.repository.js)
+│   │   ├── domain/lead.js       business rules: stages, phone normalisation, 48-hour rule, validation
+│   │   ├── services/ai/         provider calls, prompts, reviewed samples, rule-based fallback
+│   │   ├── data/                the 20 supplied sample enquiries
+│   │   └── utils/
+│   ├── scripts/evaluate-ai.js   live regression run over the 20 samples
+│   └── tests/                   unit/ and integration/ (real PostgreSQL)
+├── docs/                        submission note, QA, deployment, Loom guide, evidence
+├── docker-compose.yml           PostgreSQL (and optional app container)
+└── Dockerfile                   multi-stage production image
 ```
 
-All 19 test suites pass without warnings.
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | API (watch mode) and Vite dev server together |
+| `npm run build` | Type-check and build the client |
+| `npm start` | Production server: API + built client on :4000 |
+| `npm test` | Server unit and integration tests |
+| `npm run typecheck` | Client TypeScript check |
+| `npm run check` | Type-check, build and test |
+| `npm run db:up` | Start PostgreSQL in Docker |
+| `npm run db:migrate` / `db:seed` / `db:reset` | Apply migrations / seed if empty / restore the 20 samples |
+| `npm run evaluate:ai -w server` | Run the live AI regression (20 paid calls) |
+
+Integration tests need a database. They use `TEST_DATABASE_URL` (default: the `biai_crm_test` database on the Docker Postgres) and are skipped with a clear message if none is reachable. **The test run drops and recreates the schema of that database,** so never point it at real data.
+
+```bash
+docker compose exec db createdb -U biai biai_crm_test
+```
+
+## API overview
+
+All routes are under `/api` and, except `/health` and `/auth/login`, need a signed-in session. Errors are `{ "error": { "message": "…" } }`.
+
+| Method & path | Purpose | Role |
+|---|---|---|
+| `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` | Session | — |
+| `GET /meta` | Stages, queues, programmes, channels, samples, AI mode | any |
+| `GET /leads`, `GET /leads/:id` | Contacts with messages and activity | any |
+| `PATCH /leads/:id` | Edit stage, owner, follow-up, details, reply | any |
+| `POST /leads/:id/contact` | Log a completed contact | any |
+| `POST /leads/:id/draft` | Draft a new reply | any |
+| `DELETE /leads/:id` | Delete a contact | Admin |
+| `POST /intake/analyze`, `POST /intake` | Extract details; save a reviewed enquiry | any |
+| `GET /automation`, `POST /automation/jobs`, `POST /automation/jobs/:id/review` | Automated intake | any |
+| `PUT /automation/settings` | Manual / automatic mode | Admin, Admissions |
+| `GET /reports/weekly?end=YYYY-MM-DD` | Weekly brief | any |
+| `POST /simulator/messages` | Simulated inbound message | any |
+| `GET /users`, `POST /users` | Team list; add a member | any / Admin |
+| `POST /admin/reset-demo` | Restore the 20 sample enquiries | Admin |
 
 ## Live AI
 
-Copy `.env.example` to `.env` and configure one provider. Keep `.env` local; it is ignored and must never be included in a submission archive.
+Set one provider in `.env` and restart: `GEMINI_API_KEY` (+ `GEMINI_MODEL`), or `MODEL_API_KEY` + `META_MODEL` (Meta), or `OPENAI_API_KEY` + `OPENAI_MODEL`. If several are set, Gemini wins, then Meta. Keys stay on the server and are never sent to the browser. The sidebar shows which mode is active.
 
-For Meta Model API:
+Extraction uses a strict JSON schema and server-side validation. If a live call fails, the rule-based fallback is used and the result says `Live AI unavailable` so nobody mistakes it for AI output. Weekly totals are always calculated by code; the model only writes the three priorities.
 
-```dotenv
-MODEL_API_KEY=your_key_here
-META_MODEL=muse-spark-1.3
-```
+## Documentation
 
-Alternatively, set `OPENAI_API_KEY` and `OPENAI_MODEL` to a model supporting Responses structured output. Meta takes precedence if `MODEL_API_KEY` is set. Restart the server after configuration changes. The header then reads **AI available**. Keys are used only by the server; no credential is returned by `/api/state` or sent to the browser.
-
-Live intake uses a strict JSON schema for extraction, queue selection and a language-matched reply. Server-side checks validate the fields before the user reviews and saves them. API timeouts, refusals and invalid outputs produce visible errors; failed calls never silently substitute sample output. Use only the supplied fictional messages.
-
-Without a configured provider, **Sample mode** uses explicitly labeled, human-reviewed interpretations and replies for exact matches to the 20 supplied messages. This is a reproducible offline walkthrough, not live AI. Arbitrary text requires live AI or manual entry. Imported contacts also start with reviewed sample drafts; choose **Draft reply** to obtain a fresh live reply.
-
-## Four views
-
-1. **Pipeline** — New → Contacted → Interested → Paid → Lost. Programme and queue filters; search across names, phone numbers, notes and message text.
-2. **All enquiries** — sales, support, careers and spam queues. Open a contact for original messages, notes, owner, stage, follow-up, reply and activity history.
-3. **Follow-ups** — unresolved sales/support contacts with an overdue scheduled date or 48 hours without a logged completed contact. Urgent cases appear first, followed by support cases. Resolved support cases leave the reminder queue; new incoming messages reopen them. Paid/Lost, spam and careers are excluded. Choose **Log completed contact** only after actually contacting the person; copying a draft does not count.
-4. **Weekly brief** — seven calendar days ending on the selected date in Asia/Dhaka. Period enquiry counts are distinguished from current outstanding follow-ups. The initial end date, 1 November 2026, includes every supplied message.
-
-**New enquiry** offers all supplied messages, or lets you paste a message with optional channel metadata. Review and correct extracted values before saving. A normalized matching phone appends to the existing contact. Explicitly reviewed intake values and edited replies are saved while preserving the owner, sales stage and team notes. A previously imported source message updates the reviewed details without duplicating the message. Blank phones never cause unrelated people to merge.
-
-## Data decisions
-
-- 20 messages → 19 contacts, including both of Rafi’s messages on one contact.
-- 15 sales contacts, 2 support cases, 1 careers enquiry, 1 spam record.
-- Programmes remain **Unspecified** when the message does not establish one. The free masterclass is not relabeled as a bootcamp.
-- A refund-policy question is a sales enquiry; an actual cancellation or missing payment confirmation is support.
-- All imported stages start at **New**. A reported payment never becomes a verified Paid stage automatically.
-- Missing phones stay blank and are flagged. Replies avoid assuming fees, start dates, venues, eligibility, refunds, certificate approvals or job guarantees.
-- Original timestamps are interpreted as Dhaka time. This CRM uses the actual current time for reminders.
-- No existing outbound-contact history was provided. The 48-hour default starts from the latest incoming enquiry until a completed contact is logged. This is a conservative reminder policy, not proof that a team member failed to reply.
-
-## Validation
-
-```powershell
-npm run check
-npm test
-# Optional: calls the configured live provider once per supplied message:
-node --env-file=.env evaluate-ai.js
-```
-
-Tests cover import completeness, repeat import, identity normalization, routing, unknown programmes, persistence, reminder boundaries, validation, AI request/response handling, and the HTTP workflow. Live regression results, when run, are written to `docs/live-ai-evaluation.json`; they compare extraction fields with our reviewed interpretations, not official employer labels. Reply quality requires manual review.
-
-See [docs/QA.md](docs/QA.md), [docs/SUBMISSION-NOTE.md](docs/SUBMISSION-NOTE.md), [docs/LOOM-SCRIPT.md](docs/LOOM-SCRIPT.md), and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-
-## Scope and limitations
-
-This is a focused admissions and enquiry management CRM built directly to the hiring brief requirements. It features native HTML5 drag-and-drop pipeline progression across all five stages, one-click WhatsApp web links and phone dialing, intelligent extraction for both the 20 supplied samples and any custom pasted message in Bangla, Banglish, and English, a dedicated 48-hour follow-up reminder view with one-click contact logging, AI-driven weekly executive summaries with clipboard export, and enquiry deletion. It does not include external payment reconciliation, unrequested background notification daemons, or direct social media bot listeners. Identity matching uses phone numbers to protect distinct contacts; duplicate enquiries append to existing conversation threads.
-
-For the live interview, stage choices live in `lib/domain.js`, queue/programme/language rules and AI prompts in `lib/ai.js`, reviewed sample interpretations in `lib/samples.js`, storage in `lib/store.js`, routes in `server.js`, and interface code in `public/`.
-
-Official integration references: [Meta API](https://dev.meta.ai/docs/api-reference), [Meta structured output](https://dev.meta.ai/docs/structured-output), [OpenAI structured output](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses).
-
-
-## Selectable automation
-
-The Automation view offers Manual verification and Automatic with exception review. Submitted messages are extracted and drafted; complete new sales contacts are saved automatically with a 48-hour follow-up. Missing phone/programme, unknown sender, non-sales queues and existing contacts are held for editable approval or rejection. Processing history and settings persist in SQLite; failed items retain their source and can be retried. Duplicate submissions reuse their job. The supplied-example batch runs sequentially while the page remains open.
-
-This automates submitted intake, not channel collection or outbound delivery. No WhatsApp/Facebook connectors, background message sending, payment verification or autonomous Paid/Lost decisions are implemented. New enquiry in Manual mode retains immediate review; batch results use the verification queue. Sample mode uses labeled reviewed fixtures, not a live model.
+[Submission note](docs/SUBMISSION-NOTE.md) · [QA report](docs/QA.md) · [Requirements audit](docs/REQUIREMENTS-AUDIT.md) · [Deployment](docs/DEPLOYMENT.md) · [Loom guide](docs/LOOM-SCRIPT.md) · [Why this app](docs/WHY-THIS-APP.md) · [Brand notes](docs/BRAND.md)

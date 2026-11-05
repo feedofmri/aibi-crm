@@ -1,54 +1,46 @@
 # Validation report
 
-Validated on 3 November 2026 with Node.js 24.18.0 on Windows.
+Validated on 5 November 2026 with Node.js 22 and PostgreSQL 16 on Linux, after the rebuild to a React client, an Express API and PostgreSQL.
 
 ## Automated checks
 
-- JavaScript syntax checks: passed.
-- `node --test`: **16 tests passed, 0 failed**.
-- All 20 original source IDs survive import; 19 unique contacts, 15 sales, 2 support, 1 careers and 1 spam.
-- Repeat import is idempotent, including the six contacts without a phone. Rafi’s two enquiries remain on one contact.
-- SQLite reopen preserves edits. Phone normalization supports Bangladesh prefixes and Bangla digits.
-- 48-hour boundary, scheduled follow-up precedence, completed-contact timing, and exclusions for Paid/Lost/spam/careers are checked.
-- Invalid phone numbers, duplicate-contact phone edits and invalid stages are rejected.
-- AI schema configuration, Meta/OpenAI endpoints, provider errors, invalid JSON and invalid fields are tested with mocks. These tests make no external model calls.
-- HTTP integration checks extraction, review/save, stage edits, reply generation, contact logging, period summaries, same-origin protection, missing records and the entry page.
+| Check | Result |
+|---|---|
+| `npm run typecheck` (client, TypeScript strict) | passed |
+| `npm run build` (client) | passed |
+| `npm test` (server, against a real PostgreSQL test database) | **35 passed, 0 failed** |
 
-Additional checks cover reviewed repeat-intake persistence, edited reply storage, support resolution/reopening, future scheduled dates retained after contact logging, and isolation of the empty practice workspace. Local HTTP tests require loopback network permission in restricted environments.
+What the tests cover:
 
-## Real AI regression check
-
-The final prompt was run against all 20 supplied messages with **Meta Model API / muse-spark-1.3**. All 20 calls succeeded. Name, phone, programme, queue and language each matched our reviewed baseline on **20/20** messages. See `live-ai-evaluation.json` for full outputs and timings.
-
-The baseline is our interpretation of the sample messages, not official BIAI ground truth. The same samples informed prompt development, so this is a regression check, not a held-out accuracy benchmark. Extraction agreement does not measure reply quality. Replies were also read for relevance, language and unsupported claims, with particular attention to missing confirmation, cancellation/refund, certificate approval, eligibility and recruitment. Human review is still necessary.
-
-The Meta key was checked against the official model catalog. It is stored only in the ignored local `.env`; the ZIP explicitly excludes it. No key or database is needed to run the labeled offline sample mode.
+- **Domain rules:** Bangladesh phone normalisation (including Bangla digits), the 48-hour boundary to the millisecond, scheduled follow-ups taking precedence, exclusion of paid, lost, spam, careers and resolved support contacts, validation errors.
+- **AI layer (mocked, no paid calls):** reviewed sample mode for all 20 messages, rule-based fallback, strict-schema request contract, provider errors (429, incomplete, invalid JSON, invalid fields), Meta endpoint and server-only key, reply drafting with the full conversation and chosen language, weekly-priority fallback with a visible notice, and no unconfirmed course details in rule-based replies.
+- **Authentication and roles:** every CRM route returns 401 without a session; the httpOnly SameSite cookie; no password hash in responses; only Admin adds members or deletes contacts; only Admin or Admissions change automation mode; cross-site state changes are refused.
+- **Contacts and intake:** 20 messages import as 19 contacts (15 sales, 2 support, 1 careers, 1 spam), all at New, six without phones and never merged, Habibur urgent; re-importing duplicates nothing; reviewed intake of a supplied message updates without duplicating; sample ids must match their message; a new phone creates a contact and the same phone later joins it; edits are validated (stage, phone, unknown fields), attributed to the signed-in person and described in plain words; phone conflicts return 409; logging contact moves New to Contacted and keeps future scheduled dates; resolved support cases reopen on a new message; spam never gets a reply; weekly totals are calculated (20 messages in the week ending 1 Nov 2026) and empty weeks work; the simulator saves like a real enquiry; admins can restore the samples.
+- **Automation:** automatic mode saves complete sales enquiries with a 48-hour follow-up and reuses duplicate jobs; exceptions (missing phone, support) wait for review and can be edited, approved or rejected; approval never marks progress; provider failures keep the input, create nothing and can be retried; manual mode holds everything.
 
 ## Browser verification
 
-- Default desktop viewport: pipeline, cards, filters, contact form and brand assets rendered.
-- Message intake: sample selection populates source metadata and original Bangla text; extraction returns editable fields, missing phone and a Bangla draft.
-- Repeat intake opens the existing Tahmina contact with one original message.
-- Stage and owner edits persisted across a full page reload. Test values were restored to New/unassigned afterward; the activity log records those actual test edits.
-- Weekly brief includes 20 messages in the seven-day window ending 1 November 2026; a different empty window is also covered by integration tests.
-- Live Meta weekly summary returned successfully. The summary prompt was then tightened to a 150-word team brief.
-- Responsive check at 390 × 844: sidebar becomes top navigation, metrics use two columns, intake remains available, and document width stays within the viewport. The board scrolls within its own area.
-- Final theme follows the supplied light Courses/About references: official logo, local Inter/Hind Siliguri fonts, ivory paper, white cards and burnt-orange pill buttons. No cinematic background treatment.
+Run end to end against PostgreSQL in Chromium at 1440 × 900 and iPhone 13 size:
 
-## Remaining delivery steps
+- Sign-in page, one-click demo accounts, redirect back to the requested page.
+- Pipeline board with all five stages visible at laptop width; list view; filters; stage change by drag and drop.
+- All enquiries with queue tabs and counts; Follow-ups grouped Urgent → Support → Sales with aligned columns and **Log contact**.
+- Contact panel: conversation first, reply composer, activity, details form with a save bar that appears only for unsaved changes; support and spam callouts.
+- New enquiry: Tahmina's supplied message → reviewed sample with missing-phone warning and Bangla reply → saved to the existing contact.
+- Weekly brief, Automation (processing all 20 samples, reviewing an exception), Team, Channel simulator (send, drafted reply bubble, result card).
+- Mobile: navigation drawer, stacked stat cards, full-screen contact panel, simulator.
+- No console errors apart from the expected 401 when checking the session before sign-in.
 
-- Record the applicant’s own Loom presentation, maximum five minutes, using `LOOM-SCRIPT.md`.
-- A public hosting account and public URL have not been provisioned. The working link is local to the development computer; `DEPLOYMENT.md` explains reviewer setup and hosting requirements.
-- Production authentication, channel integrations, payment verification and background notifications are outside this prototype’s scope.
+## Real AI regression check (earlier version, same prompts)
 
-The live weekly brief was further adjusted after a model mislabeled message volume as contact volume: code now writes the numeric summary, while AI generates only the three action priorities. This keeps the counts deterministic.
+The extraction prompt was run against all 20 supplied messages with **Meta Model API / muse-spark-1.3**. All 20 calls succeeded. Name, phone, programme, queue and language each matched our reviewed baseline on **20/20** messages. See `evidence/live-ai-evaluation.json` and `evidence/live-reply-check.json`.
 
-Final improvement pass: browser-verified live intake in the isolated practice workspace, edited Bangla reply and next-action persistence after full reload. Three live conversation-aware reply checks are saved in `live-reply-check.json`; the missing-phone prompt was refined after review and Tahmina was rerun successfully. The API contract test verifies both Rafi messages and the selected language are supplied to reply regeneration.
+The baseline is our interpretation of the sample messages, not official BIAI labels. The same samples informed prompt development, so this is a regression check, not a held-out accuracy benchmark. Extraction agreement does not measure reply quality; replies were read for relevance, language and unsupported claims. Re-run with `npm run evaluate:ai -w server` after configuring a key.
 
-## Selectable automation
+## Known limitations
 
-The Automation view offers Manual verification and Automatic with exception review. Submitted messages are extracted and drafted; complete new sales contacts are saved automatically with a 48-hour follow-up. Missing phone/programme, unknown sender, non-sales queues and existing contacts are held for editable approval or rejection. Processing history and settings persist in SQLite; failed items retain their source and can be retried. Duplicate submissions reuse their job. The supplied-example batch runs sequentially while the page remains open.
-
-This automates submitted intake, not channel collection or outbound delivery. No WhatsApp/Facebook connectors, background message sending, payment verification or autonomous Paid/Lost decisions are implemented. New enquiry in Manual mode retains immediate review; batch results use the verification queue. Sample mode uses labeled reviewed fixtures, not a live model.
-
-Live browser automation check: Rafi was automatically extracted, drafted, saved and given a follow-up in the practice workspace. Tahmina was held for missing-phone/existing-contact verification, then manually approved without duplicating her message. Main sample contacts were not changed. Existing-contact reviews preserve the original reminder timing.
+- Nothing is sent from the app; there are no live WhatsApp or Facebook connections.
+- Payments are never verified by the app.
+- Reminders are in-app only (no email or push).
+- Without an AI key, new messages use a much weaker rule-based extractor (clearly labelled).
+- Demo accounts share a published password; change it before any public deployment.

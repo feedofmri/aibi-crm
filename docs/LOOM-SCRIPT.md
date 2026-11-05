@@ -1,54 +1,46 @@
-# Loom recording guide — target 4 minutes 30 seconds
+# Loom recording guide — target 4:30, hard limit 5:00
 
-Record your own screen and explanation. The brief scores your ability to explain and sell the work. This outline is not a recording. Rehearse in your own words and keep the final Loom below five minutes.
+Record your own screen and explanation in your own words. This is an outline, not a script to read. Rehearse once with a timer; if you run long, cut from section 2, never from sections 3 and 4.
 
 ## Before recording
 
-- Start `npm start`, open http://127.0.0.1:3000, close other tabs and hide any terminal or editor showing `.env`.
-- Configure and verify live AI first if available. The badge must accurately reflect whether live AI is connected.
-- Know the difference between the reviewed drafts loaded with sample data and a freshly generated live draft.
-- Keep the screen at a readable zoom. The board scrolls horizontally on smaller screens.
-- Leave all source data intact. During the demo, make intentional stage/owner changes and explain them as demo actions.
+- `npm run db:up`, `npm run dev`, open http://localhost:5173 and sign in as **Admin BIAI**. Close other tabs; hide any terminal or editor that shows `.env`.
+- Decide live AI or not. The sidebar shows **Live AI · provider** or **Rule-based mode · no AI key**. Say which one you are using. Never present a rule-based or reviewed-sample result as live AI.
+- Use only the supplied sample data. Just before recording, open the account menu (bottom of the sidebar) → **Restore sample data** so you start clean.
+- Readable zoom (110–125%). Microphone check.
 
-## 0:00–0:30 — Problem and promise
+## 1. 0:00–0:30 — Task and problem
 
-“BIAI receives enquiries across WhatsApp, Facebook, forms and calls. The problem is losing the context and forgetting the next reply. I built one small workspace that turns those conversations into reviewed contacts and makes the next action clear.”
+“I picked the **BIAI admissions CRM** task. BIAI gets enquiries on WhatsApp, Facebook, forms and calls in Bangla, Banglish and English; the problem is losing context and forgetting the next reply. I built one workspace that turns those messages into reviewed contacts and makes the next action obvious.”
 
-Show the pipeline and metrics. Explain: 20 supplied messages, 19 contacts. No invented customers or conversions.
+Show the pipeline: 20 supplied messages → 19 contacts. No invented customers.
 
-## 0:30–1:40 — Show AI doing useful work
+## 2. 0:30–3:00 — Live walkthrough (main flow first)
 
-Open **New enquiry** and choose **#2, Tahmina**. Explain that channel metadata supplies the name, while the message establishes fellowship interest. Click **Extract details & draft reply**. Point out the Bangla reply, blank phone and request for a contact number. Say which live provider is being used. If offline, state that the reviewed sample is a fallback and explain the configuration needed for live AI.
+1. **Intake (0:30–1:20).** New enquiry → pick **#2 Tahmina** → Extract details. Point out: fellowship detected, phone missing (warning), Bangla reply asking for a number. Edit one sentence, save: the contact panel opens with the original message and your reply.
+2. **Pipeline (1:20–1:45).** Drag a card from New to Contacted. Open it: the activity history shows who moved it and when. Show the WhatsApp button (pre-filled draft): it opens a chat; the app sends nothing itself.
+3. **Messy data (1:45–2:20).** All enquiries → open **Rafi**: two messages, one contact (phone matching; blank phones never merge). Open **Farzana**: says she paid → Support queue with a “human review required” callout, *not* marked Paid.
+4. **Follow-ups (2:20–2:40).** Grouped Urgent → Support → Sales; 48-hour rule; Paid/Lost/spam/careers excluded. **Log contact** only after actually reaching the person.
+5. **Weekly brief (2:40–3:00).** Week ending 1 Nov 2026. Totals are calculated by code; AI (or the labelled rule-based fallback) only writes the three priorities.
 
-Edit one sentence of the reply and save. Reopening the contact proves the reviewed result persists. Re-importing an existing source message updates the reviewed fields without duplicating its message. Use the separate **Practice demo** workspace to demonstrate this from an empty contact list. Change the owner and stage deliberately, save, and explain that the team remains in control.
+## 3. 3:00–4:15 — How I used AI to build it, and what I decided
 
-## 1:40–2:30 — Show judgment on messy data
+Show the code briefly: the folder structure (`client/`, `server/`), the prompt in `server/src/services/ai/ai.service.js`, the rules in `server/src/domain/lead.js`, and the tests.
 
-Close the contact; open **All enquiries** and search **Rafi**. Show the two original messages on one contact. Explain phone normalization and why blank phones are never merged.
+- **Which tools and how** — name the tools you actually used (for example, a coding agent for building and debugging, a chat model for reading the brief and drafting prompts). Be concrete: one thing AI wrote well, one thing you had to correct.
+- **AI inside the product:** structured JSON output with a strict schema, so the model returns fields instead of free text; server-side validation rejects invalid output.
+- **Decisions you made, not the AI:** a payment claim never sets Paid; unknown programme stays Unspecified; replies never invent prices, dates or venues; code — not the model — does identity matching, dates and counts (you moved weekly totals out of the AI after it mislabelled messages as contacts).
+- **Evidence:** automated tests, plus a live run over all 20 messages (`docs/live-ai-evaluation.json`). Say honestly that it’s an in-sample regression check, not an accuracy benchmark.
 
-Search **Farzana**. Show support routing and the payment complaint. “She says she paid; the app does not verify that and does not mark her Paid. This needs a human.” Show the support Open/Resolved control: resolution removes the reminder without pretending this is a sales conversion.
+## 4. 4:15–4:50 — What doesn’t work yet and what I’d fix next
 
-Briefly mention spam and careers queues. If time permits, show **Sabbir**: programme remains unspecified because it is absent from the message.
+“It doesn’t send messages, verify payments or connect to WhatsApp directly, and reminders are in-app only. Without an AI key the fallback is rule-based and much weaker. Next I’d add approved programme and fee information so replies can actually answer, then a reviewed WhatsApp integration, then email reminders.”
 
-## 2:30–3:15 — Make the next action obvious
-
-Open **Follow-ups**, with all queues selected. Explain the 48-hour rule and that paid/lost leads, spam and careers are excluded. Show how an owner can schedule a next follow-up. Show urgency, owner and next action. Explain **Log completed contact**: use it after reaching out through the original channel; merely copying a reply does not pretend contact happened.
-
-## 3:15–3:50 — Weekly brief
-
-Open **Weekly brief**, ending **1 November 2026**, and generate. Explain that this window contains the sample enquiries, while overdue totals describe the current workspace. Point out the distinction between a live AI summary and deterministic sample mode.
-
-## 3:50–4:30 — Choices, evidence and limitations
-
-“I kept the app to four views and used Node’s built-in SQLite so it runs with one command and preserves changes. AI handles language and intent; code handles identity, dates, stages and storage. I tested the supplied cases and the end-to-end workflow. This version does not send messages, authenticate a team or verify payments. My next step would be approved programme knowledge and authenticated team access.”
-
-Finish with the outcome: “The team can see who this person is, what we know, and what to do next—without losing their original message.”
+Close: “The team can see who this person is, what we know, and what to do next — without losing the original message.”
 
 ## Submission checklist
 
-- Record and review your Loom; confirm length ≤5 minutes and readable text/audio.
-- Include the Loom URL, source archive/repository, and the short submission note.
-- Include a hosted demo URL only after verifying it from another browser/device. A localhost URL works only on the computer running the server.
-- Exclude `.env`, database files, keys and local logs. The submission ZIP is prepared from an explicit allowlist.
-- Read `QA.md` and `live-ai-evaluation.json` before quoting any accuracy result. The reviewed labels are our interpretations of the supplied data.
-- Revoke the temporary key after you finish the live demo/testing and configure a replacement if reviewers need continued AI access.
+- Loom ≤ 5:00, readable text and audio. Watch it back once.
+- Reply to the same email with: Loom URL, demo URL (only if verified from another device — localhost is not a demo link), repository or ZIP, and the half-page note (`SUBMISSION-NOTE.md`).
+- Share the repository, or a ZIP made with `git archive -o biai-crm.zip HEAD` (it contains only committed files, so no `.env` or keys).
+- Quote accuracy only as stated in `QA.md`. Revoke any temporary API key after the demo.

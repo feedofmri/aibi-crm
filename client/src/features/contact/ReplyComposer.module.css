@@ -1,0 +1,22 @@
+.textarea {
+  font-size: var(--text-base);
+  min-height: 108px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}

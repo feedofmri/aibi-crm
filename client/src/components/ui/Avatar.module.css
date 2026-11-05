@@ -1,0 +1,24 @@
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.xs { width: 20px; height: 20px; font-size: 9px; }
+.sm { width: 28px; height: 28px; font-size: 11px; }
+.md { width: 34px; height: 34px; font-size: 12px; }
+.lg { width: 44px; height: 44px; font-size: 15px; }
+.xl { width: 56px; height: 56px; font-size: 18px; }
+
+.brand  { background: var(--brand-50);  color: var(--brand-700);  box-shadow: inset 0 0 0 1px var(--brand-100); }
+.blue   { background: var(--blue-50);   color: var(--blue-700);   box-shadow: inset 0 0 0 1px var(--blue-200); }
+.violet { background: var(--violet-50); color: var(--violet-700); box-shadow: inset 0 0 0 1px var(--violet-200); }
+.green  { background: var(--green-50);  color: var(--green-700);  box-shadow: inset 0 0 0 1px var(--green-200); }
+.amber  { background: var(--amber-50);  color: var(--amber-700);  box-shadow: inset 0 0 0 1px var(--amber-200); }
+.rose   { background: #fdf0f3;          color: #a3284a;           box-shadow: inset 0 0 0 1px #f6cdd8; }
+.teal   { background: #ecfaf8;          color: #0f6b62;           box-shadow: inset 0 0 0 1px #bfe8e2; }
+.gray   { background: var(--gray-100);  color: var(--gray-700);   box-shadow: inset 0 0 0 1px var(--gray-200); }

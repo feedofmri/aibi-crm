@@ -33,14 +33,14 @@ AI handles interpretation and reply drafting. Application code handles persisten
 No universal accuracy claim. The original 20 supplied examples matched our reviewed extraction labels in one regression run. They informed development; they are not held-out data. Names/phones were provided as channel metadata. Reply quality and future inputs still need human review. Report additional tests separately.
 
 **“What would you do next?”**
-Pilot the workflow with BIAI's team using fictional data, measure where review takes time, and add only approved programme/policy knowledge. Before real shared use, add authentication and deployment controls. Channel integration and payment reconciliation require their own requirements and authorization.
+Pilot the workflow with BIAI's team using fictional data, measure where review takes time, and add only approved programme/policy knowledge. Team sign-in and roles are in place; before real shared use, add hosting controls and per-person passwords. Channel integration and payment reconciliation require their own requirements and authorization.
 
 ## Five-minute demonstration order
 
-1. Explain the lost-enquiry problem and open the separate Practice demo workspace.
+1. Explain the lost-enquiry problem. Restore the sample data from the account menu so the demo starts clean.
 2. Use Tahmina's supplied message: show the actual model result, missing phone, language and reply. Save and reload to prove persistence.
 3. Use Rafi's two supplied messages: one contact, two originals; change the reviewed reply and save it.
-4. Show Farzana and Habibur in the main workspace: support routing, urgency, next action and resolution without a sales conversion.
+4. Show Farzana and Habibur: support routing, urgency, next action and resolution without a sales conversion.
 5. Show a scheduled follow-up and the weekly brief. Explain one deliberate limitation and one next improvement.
 
 Spend more time showing the system working than describing its stack. Use your own words and be ready to explain a small code change live.
