@@ -1,0 +1,30 @@
+{
+  "name": "@biai-crm/server",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "BIAI admissions CRM API (Express + PostgreSQL).",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=../.env --watch src/index.js",
+    "start": "node --env-file-if-exists=../.env src/index.js",
+    "test": "node --env-file-if-exists=../.env --test --test-concurrency=1 \"tests/**/*.test.js\"",
+    "db:migrate": "node --env-file-if-exists=../.env src/db/cli.js migrate",
+    "db:seed": "node --env-file-if-exists=../.env src/db/cli.js seed",
+    "db:reset": "node --env-file-if-exists=../.env src/db/cli.js reset",
+    "evaluate:ai": "node --env-file-if-exists=../.env scripts/evaluate-ai.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "zod": "^4.1.12"
+  }
+}

@@ -1,0 +1,147 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.pending {
+  box-shadow: inset 3px 0 0 var(--amber-600), var(--shadow-xs);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.who strong {
+  font-weight: var(--weight-semibold);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+}
+
+.message {
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasons li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: var(--radius-full);
+  background: var(--amber-50);
+  color: var(--amber-700);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.reasons svg {
+  width: 12px;
+  height: 12px;
+}
+
+.failure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--red-50);
+  color: var(--red-700);
+  font-size: var(--text-sm);
+}
+
+.link,
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand-600);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.link:hover,
+.toggle:hover {
+  color: var(--brand-700);
+}
+
+.link svg,
+.chevron {
+  width: 14px;
+  height: 14px;
+}
+
+.chevron {
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+.summary {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

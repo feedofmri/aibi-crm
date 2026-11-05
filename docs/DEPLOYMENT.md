@@ -1,15 +1,58 @@
 # Running and sharing the demo
 
-The verified entry point is a local Node server at http://127.0.0.1:3000. This URL is not a public reviewer link. The brief allows a demo link “if you have one”; source plus your Loom remain required.
+`http://localhost:5173` (development) or `http://localhost:4000` (production build) work only on the computer running the app. They are not reviewer links. The brief asks for a demo link only "if you have one"; the source, the Loom and the note are what matter.
 
-## Reviewer setup
+## Reviewer setup (local)
 
-Send the credential-free source ZIP. A reviewer with Node 24+ can unzip it, run `npm install` then `npm start`, and use all sample workflows without an API key. For live extraction, they configure their own Gemini, Meta or OpenAI credentials in `.env` and restart.
+Reviewers need Node.js 22+ and Docker:
 
-## Hosting the Node application
+```bash
+cp .env.example .env
+```
 
-Use a Node 24 host with persistent disk storage and HTTPS. Run `npm start` from the project root; configure `HOST=0.0.0.0`, the platform-assigned `PORT`, and optionally `DB_PATH` on a persistent volume. Keep API credentials in the hosting service’s secret environment variables. Alternatively set `DATABASE_URL` to a managed PostgreSQL database. Static hosting alone cannot run the server.
+```bash
+npm install
+```
 
-Team sign-in only attributes changes; it does not protect the API, the UI signs in as the demo Admin automatically, and anyone can register. Before giving a team shared access or placing an API-backed demo on the public internet, put it behind the host’s authenticated access control and add request limits. With SQLite, keep one persistent server instance; multiple replicas with separate disks do not share state. Hosted model costs are borne by the configured key owner.
+```bash
+npm run db:up
+```
 
-No hosting account has been configured or deployment claimed in this project. The temporary development key must not be shipped to reviewers or uploaded in a ZIP.
+```bash
+npm run dev
+```
+
+No API key is needed. Without one the app uses labelled reviewed samples and a rule-based fallback.
+
+## Hosting
+
+The production server is a single Node process that serves the API and the built React app from one origin, so the session cookie and same-origin checks work without CORS.
+
+1. Provision PostgreSQL 16 (managed, e.g. Neon, Supabase, Render or Railway Postgres) and note its connection string.
+2. Deploy the repository with the included `Dockerfile`, or as a Node service:
+   - build: `npm ci && npm run build`
+   - start: `npm start`
+3. Set environment variables on the host (never in the repository):
+   - `NODE_ENV=production`
+   - `HOST=0.0.0.0` and the platform's `PORT`
+   - `DATABASE_URL=postgresql://…` (append `?sslmode=require` if the provider needs SSL)
+   - `JWT_SECRET` – a long random value (`openssl rand -hex 32`). The server refuses to start in production without it.
+   - optionally one AI provider key.
+4. On start the server applies migrations, creates the demo team and imports the 20 samples if the database is empty.
+5. Open the URL from another device and sign in to verify before sharing it.
+
+Run a single instance (or several with sticky sessions; state is in PostgreSQL, so either works). Put HTTPS in front; production cookies are `Secure`.
+
+### Before sharing a public link
+
+- **Change the demo passwords** or add new accounts from the Team page. The demo password is printed on the sign-in screen by design, so a public link with demo accounts is open to anyone who visits.
+- Model costs are paid by whoever owns the configured key. AI routes are rate-limited (30 requests/minute per client); consider removing the key for a public demo.
+- Use only fictional sample data.
+
+## Docker only
+
+```bash
+JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up --build
+```
+
+This starts PostgreSQL and the app on http://localhost:4000.

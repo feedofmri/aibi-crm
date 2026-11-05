@@ -1,20 +1,29 @@
 {
   "name": "biai-crm",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "type": "module",
-  "description": "A multilingual enquiry workspace for BIAI",
-  "scripts": {
-    "start": "node --env-file-if-exists=.env server.js",
-    "test": "node --test",
-    "check": "node --check server.js && node --check public/app.js"
-  },
+  "description": "BIAI admissions CRM: React client, Node.js API and PostgreSQL.",
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "jsonwebtoken": "^9.0.3",
-    "pg": "^8.23.1"
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm start -w server",
+    "test": "npm test -w server",
+    "typecheck": "npm run typecheck -w client",
+    "lint": "npm run lint -w client",
+    "check": "npm run typecheck && npm run build && npm test",
+    "db:up": "docker compose up -d db",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:seed": "npm run db:seed -w server",
+    "db:reset": "npm run db:reset -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

@@ -1,0 +1,171 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--control-height);
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.button svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.button:disabled {
+  opacity: 0.55;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block {
+  width: 100%;
+}
+
+.sm {
+  height: var(--control-height-sm);
+  padding: 0 10px;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+}
+
+.sm svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lg {
+  height: 42px;
+  padding: 0 18px;
+  font-size: var(--text-base);
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.primary:disabled {
+  background: var(--gray-150);
+  color: var(--gray-500);
+  box-shadow: none;
+  opacity: 1;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--color-primary-active);
+}
+
+.secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+
+.danger {
+  background: var(--color-surface);
+  border-color: var(--red-200);
+  color: var(--red-600);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--red-50);
+}
+
+.whatsapp {
+  background: var(--color-surface);
+  border-color: #b7dfd8;
+  color: var(--whatsapp);
+  box-shadow: var(--shadow-xs);
+}
+
+.whatsapp:hover:not(:disabled) {
+  background: #effaf7;
+}
+
+/* Icon-only buttons */
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background: transparent;
+  transition: background-color var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+}
+
+.iconButton:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.iconButton:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+
+.icon-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.icon-md {
+  width: var(--control-height);
+  height: var(--control-height);
+}
+
+.icon-sm {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+}
+
+.iconButton svg {
+  width: 16px;
+  height: 16px;
+}

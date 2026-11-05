@@ -1,4 +1,17 @@
-.env
-data/*.sqlite*
-*.log
+# Dependencies
 node_modules/
+
+# Builds
+client/dist/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and local data
+*.log
+*.sqlite*
+coverage/
+.DS_Store
