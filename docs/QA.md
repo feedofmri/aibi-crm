@@ -1,5 +1,15 @@
 # Validation report
 
+## Re-run, 5 November 2026 (Node.js 22, Linux, no PostgreSQL available)
+
+- `npm run check`: passed.
+- `npm test`: **17 passed, 0 failed, 2 skipped**. The 2 skipped tests are the PostgreSQL tests (`tests/pg.test.js`), which now skip automatically when `DATABASE_URL` is not reachable instead of failing.
+- Server started with the SQLite fallback. Weekly brief (week ending 1 Nov 2026) without live AI: 20 enquiries, 19 contacts, programme counts and the two support cases come from the data, and the output is labelled rule-based. A custom English message was extracted by the rule-based fallback and labelled as such.
+- Fixed in this pass: the offline weekly brief previously printed fixed statements that were not derived from the data; rule-based results were labelled "Manual entry"/"Auto-drafted"; rule-based bootcamp replies stated a "3-day" duration the team had not confirmed.
+
+The original report below was produced on 3 November 2026, before PostgreSQL, team sign-in and the rule-based fallback were added; its test count (16) refers to that version.
+
+
 Validated on 3 November 2026 with Node.js 24.18.0 on Windows.
 
 ## Automated checks
@@ -47,7 +57,7 @@ Final improvement pass: browser-verified live intake in the isolated practice wo
 
 ## Selectable automation
 
-The Automation view offers Manual verification and Automatic with exception review. Submitted messages are extracted and drafted; complete new sales contacts are saved automatically with a 48-hour follow-up. Missing phone/programme, unknown sender, non-sales queues and existing contacts are held for editable approval or rejection. Processing history and settings persist in SQLite; failed items retain their source and can be retried. Duplicate submissions reuse their job. The supplied-example batch runs sequentially while the page remains open.
+The Automation view offers Manual verification and Automatic with exception review. Submitted messages are extracted and drafted; complete new sales contacts are saved automatically with a 48-hour follow-up. Missing phone/programme, unknown sender, non-sales queues and existing contacts are held for editable approval or rejection. Processing history and settings persist in the database; failed items retain their source and can be retried. Duplicate submissions reuse their job. The supplied-example batch runs sequentially while the page remains open.
 
 This automates submitted intake, not channel collection or outbound delivery. No WhatsApp/Facebook connectors, background message sending, payment verification or autonomous Paid/Lost decisions are implemented. New enquiry in Manual mode retains immediate review; batch results use the verification queue. Sample mode uses labeled reviewed fixtures, not a live model.
 

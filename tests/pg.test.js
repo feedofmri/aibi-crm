@@ -6,7 +6,20 @@ import { createApp } from "../server.js";
 
 const PG_URL = process.env.DATABASE_URL || "postgresql://boraq:boraq_dev_password@127.0.0.1:5432/biai_crm";
 
-test("PostgreSQL store and Auth functionality", async () => {
+// These tests need a running PostgreSQL server. Skip them (instead of failing)
+// when none is reachable, so `npm test` stays meaningful on the SQLite fallback.
+async function pgAvailable() {
+  try {
+    const store = await createPgStore(PG_URL);
+    await store.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+const skipPg = (await pgAvailable()) ? false : "PostgreSQL not reachable at DATABASE_URL";
+
+test("PostgreSQL store and Auth functionality", { skip: skipPg }, async () => {
   let store;
   try {
     store = await createPgStore(PG_URL);
@@ -67,7 +80,7 @@ test("PostgreSQL store and Auth functionality", async () => {
   }
 });
 
-test("HTTP Auth API endpoints with PostgreSQL", async () => {
+test("HTTP Auth API endpoints with PostgreSQL", { skip: skipPg }, async () => {
   let store;
   let server;
   try {

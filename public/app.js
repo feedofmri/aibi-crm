@@ -570,7 +570,7 @@ function openLead(id) {
       ${l.messages.map((m) => `<article class="message"><div><strong>${esc(m.channel)}</strong><time>${fmt(m.receivedAt)}</time></div><p>${esc(m.text)}</p></article>`).join("")}
     </section>
     <section class="detail-section">
-      <div class="section-head"><h3>Reply draft</h3><span class="mode-pill">${esc(l.draftMode === "live" ? "AI Engine" : l.draftMode === "sample" ? "Standard Draft" : l.draftMode === "heuristic" ? "Auto-drafted" : l.draftMode === "human-reviewed" ? "Human-reviewed" : "Manual")}</span></div>
+      <div class="section-head"><h3>Reply draft</h3><span class="mode-pill">${esc(l.draftMode === "live" ? "AI Engine" : l.draftMode === "sample" ? "Reviewed sample" : l.draftMode === "heuristic" ? "Rule-based draft" : l.draftMode === "human-reviewed" ? "Human-reviewed" : "Manual")}</span></div>
       <textarea id="reply-text" rows="4" aria-label="Editable reply draft" placeholder="No reply draft yet">${esc(l.draft)}</textarea>
       <div class="form-actions">
         <button class="secondary" id="generate-reply" ${l.route === "Spam" ? "disabled" : ""}>${icons.aiSpark()} <span>Draft reply</span></button>
@@ -779,7 +779,7 @@ function openIntake() {
 function renderExtracted() {
   const r = intakeResult;
   $("#extracted").innerHTML =
-    `<section class="extraction"><div class="section-head"><h3>Review extracted details</h3><span class="mode-pill">${r.mode === "live" ? "AI Engine" : r.mode === "sample" ? "Standard Intake" : "Manual entry"}</span></div><p class="extraction-reason">${esc(r.reason)}</p><form id="review-form">${formFields(r, "intake")}<label>Reply draft<textarea name="reply" rows="3">${esc(r.reply)}</textarea></label><p class="helper">Saving applies these reviewed details and this reply to the matching contact. Owner, sales stage and team notes are preserved. Original messages are never duplicated.</p><button type="submit" class="primary">Save reviewed enquiry &rarr;</button></form></section>`;
+    `<section class="extraction"><div class="section-head"><h3>Review extracted details</h3><span class="mode-pill">${r.mode === "live" ? "AI Engine" : r.mode === "sample" ? "Reviewed sample" : r.mode === "heuristic" ? "Rule-based (no live AI)" : "Manual entry"}</span></div><p class="extraction-reason">${esc(r.reason)}</p><form id="review-form">${formFields(r, "intake")}<label>Reply draft<textarea name="reply" rows="3">${esc(r.reply)}</textarea></label><p class="helper">Saving applies these reviewed details and this reply to the matching contact. Owner, sales stage and team notes are preserved. Original messages are never duplicated.</p><button type="submit" class="primary">Save reviewed enquiry &rarr;</button></form></section>`;
   $("#review-form").onsubmit = (e) => {
     e.preventDefault();
     act(e.submitter, async () => {
@@ -817,14 +817,14 @@ function renderExtracted() {
 }
 function renderInsights() {
   $("#content").innerHTML =
-    `<div class="brief-grid"><section class="brief-panel"><div class="eyebrow">THE WEEKLY BRIEF</div><h2>Reporting period</h2><p>Weekly summary of inbound enquiries, route breakdown, and 48-hour follow-up priorities.</p><label>Week ending <small>Asia/Dhaka</small><input id="week-ending" type="date" value="2026-11-01"></label><button class="primary" id="generate-summary">${icons.aiSpark()} Create report</button><p class="helper">Calculates lead velocity, programme demand, and overdue SLA status across the chosen 7-day reporting period.</p></section><section class="summary-panel"><div class="section-head"><h3>Summary</h3><div class="summary-header-actions"><button class="secondary small-btn" id="copy-summary" style="display:none;" type="button">${icons.clipboard()} Copy report</button><span class="mode-pill">${state.mode === "live" ? "AI Engine" : "Executive Brief"}</span></div></div><div id="summary-output">${icons.activity()}<h3>No report generated</h3><p>Select a week ending date, then click Create report.</p></div></section></div>`;
+    `<div class="brief-grid"><section class="brief-panel"><div class="eyebrow">THE WEEKLY BRIEF</div><h2>Reporting period</h2><p>Weekly summary of inbound enquiries, route breakdown, and 48-hour follow-up priorities.</p><label>Week ending <small>Asia/Dhaka</small><input id="week-ending" type="date" value="2026-11-01"></label><button class="primary" id="generate-summary">${icons.aiSpark()} Create report</button><p class="helper">Calculates lead velocity, programme demand, and overdue SLA status across the chosen 7-day reporting period.</p></section><section class="summary-panel"><div class="section-head"><h3>Summary</h3><div class="summary-header-actions"><button class="secondary small-btn" id="copy-summary" style="display:none;" type="button">${icons.clipboard()} Copy report</button><span class="mode-pill">${state.mode === "live" ? "AI Engine" : "Rule-based"}</span></div></div><div id="summary-output">${icons.activity()}<h3>No report generated</h3><p>Select a week ending date, then click Create report.</p></div></section></div>`;
   $("#generate-summary").onclick = (e) =>
     act(e.target, async () => {
       const result = await api("summary", "POST", {
         end: $("#week-ending").value,
       });
       $("#summary-output").innerHTML =
-        `<div class="summary-meta">${esc(result.mode === "live" ? "Live AI generated weekly report" : "Calculated metrics + structured weekly brief")}</div><div class="summary-text" id="report-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">${esc(result.text)}</div>`;
+        `<div class="summary-meta">${esc(result.mode === "live" ? "Calculated totals + live AI action priorities" : "Calculated totals + rule-based priorities (no live AI)")}</div><div class="summary-text" id="report-text" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;">${esc(result.text)}</div>`;
       const copyBtn = $("#copy-summary");
       if (copyBtn) {
         copyBtn.style.display = "inline-flex";

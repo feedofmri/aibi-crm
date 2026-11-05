@@ -5,7 +5,7 @@ $stagingPath = Join-Path ([System.IO.Path]::GetTempPath()) ('biai-crm-submission
 New-Item -ItemType Directory -Path $stagingPath | Out-Null
 try {
     # An explicit allowlist keeps .env, SQLite runtime files and logs out of delivery.
-    foreach ($item in @('public','lib','tests','docs','README.md','package.json','server.js','evaluate-ai.js','package-submission.ps1','.env.example','.gitignore')) {
+    foreach ($item in @('public','lib','tests','docs','README.md','package.json','package-lock.json','server.js','evaluate-ai.js','package-submission.ps1','.env.example','.gitignore')) {
         Copy-Item -LiteralPath (Join-Path $projectRoot $item) -Destination $stagingPath -Recurse
     }
     $sampleDirectory = Join-Path $stagingPath 'data'

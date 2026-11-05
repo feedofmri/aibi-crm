@@ -406,6 +406,7 @@ export function createApp(mainStore, demoStore = mainStore) {
           notes: period.map((l) => ({
             name: l.name,
             route: l.route,
+            program: l.program,
             notes: l.notes,
           })),
         };
