@@ -99,11 +99,21 @@ jobs:
       - name: Smoke test
         if: steps.creds.outputs.skip != '1'
         run: |
+          # Print what a URL actually returned, so a failure says why (status, type, first bytes).
+          show() {
+            echo "--- $1"
+            curl -sS -L --max-time 20 -o /tmp/body -w "HTTP %{http_code} · %{content_type} · final URL %{url_effective}\n" "$1" || true
+            head -c 400 /tmp/body 2>/dev/null | tr '\n' ' '; echo
+          }
           ok=""
           for i in 1 2 3 4 5 6 7 8 9; do
-            if curl -fsS "$CRM_URL/api/health" | grep -q '"status":"ok"'; then ok=1; break; fi; sleep 10
+            if curl -fsS --max-time 20 "$CRM_URL/api/health" | grep -q '"status":"ok"'; then ok=1; break; fi; sleep 10
           done
-          [ -n "$ok" ] || { echo "::error::The CRM is not answering $CRM_URL/api/health. In cPanel open Setup Node.js App → biai/crm: check the startup file (app.cjs) and environment variables, read biai/crm/stderr.log, then Restart."; exit 1; }
+          if [ -z "$ok" ]; then
+            show "$CRM_URL/api/health"; show "$CRM_URL/"; show "$SIMULATOR_URL/"
+            echo "::error::The CRM is not answering $CRM_URL/api/health (see the responses above). In cPanel open Setup Node.js App → biai/crm: check the Application URL (biai-crm.boraqs.com), startup file (app.cjs) and environment variables, read biai/crm/stderr.log, then Restart."
+            exit 1
+          fi
           curl -fsS "$CRM_URL/login" | grep -q 'id="root"' || { echo "::error::The CRM web app is not served at $CRM_URL/login"; exit 1; }
           curl -fsS "$SIMULATOR_URL/" | grep -q 'id="root"' || { echo "::error::The simulator is not served at $SIMULATOR_URL. Point the subdomain's document root at $SIM_DIR."; exit 1; }
           # The simulator site may call the CRM's inbound API from the browser (CORS) with the channel key.
