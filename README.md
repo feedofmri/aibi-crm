@@ -1,8 +1,18 @@
 # BIAI Admissions CRM
 
-An admissions and enquiry CRM for Bangladesh AI (BIAI), plus a separate **channel simulator** website for sending test enquiries into it. It turns WhatsApp, Facebook, website and phone enquiries in Bangla, Banglish and English into reviewed contacts, drafts a reply in the sender's language, moves people through a five-stage pipeline and makes sure nobody waits more than 48 hours for a follow-up.
+An admissions and enquiry CRM for Bangladesh AI (BIAI), with a separate **channel simulator** website for sending test enquiries into it.
 
-Seeded with 20 fictional sample messages (19 contacts).
+Enquiries arrive from WhatsApp, Facebook, the website and phone calls, in Bangla, Banglish and English. The CRM extracts each sender's details with AI and routes them to Sales, Support, Careers or Spam. It drafts a reply in the sender's language and tracks every contact through a five-stage pipeline, so nobody waits more than 48 hours for a follow-up.
+
+**Live demo**
+
+| | |
+|---|---|
+| CRM | https://biai-crm.boraqs.com |
+| Channel simulator | https://biai-simulator.boraqs.com |
+| Demo sign-in | `admin@biai.com.bd` / `Admin123!` (also `tanvir@`, `ayesha@`, `rahim@`; same password) |
+
+The CRM is seeded with 20 fictional sample messages, which become 19 contacts.
 
 | Pipeline | Contact |
 |---|---|
@@ -10,43 +20,86 @@ Seeded with 20 fictional sample messages (19 contacts).
 | **Follow-ups** | **Channel simulator** |
 | ![Follow-ups](docs/screenshots/follow-ups.jpg) | ![Channel simulator](docs/screenshots/simulator.jpg) |
 
-| Stack | |
+## Features
+
+- **Pipeline:** five stages: New, Contacted, Interested, Paid and Lost. Drag cards between stages (each move is saved and logged), or switch to a list.
+- **All enquiries:** every contact across the Sales, Support, Careers and Spam queues. Filter by programme, owner or text.
+- **Follow-ups:** contacts with no logged contact for 48 hours, or whose scheduled follow-up date has passed. Grouped as Urgent, then Support, then Sales, with a one-click **Log contact**.
+- **Contact panel:**
+  - The full conversation, with the reply draft beside it.
+  - The contact's details and stage.
+  - A history of who changed what.
+- **New enquiry:** paste a message to get the extracted details and a draft reply, then review and save. A message with a known phone number joins the existing contact; a message with no phone is never merged.
+- **Weekly brief:** totals calculated by code for any seven days, plus three AI-written priorities. It can be copied as text.
+- **Automation:**
+  - **Manual mode:** every new enquiry waits for a person.
+  - **Automatic mode:** complete sales enquiries are saved on their own. Every exception, such as a missing phone or a support case, is held for review.
+  - **Safe auto-reply** for channel messages: optional and off by default.
+- **Team and roles:** Admin, Admissions, Support and Sales, with permissions enforced by the API.
+- **Channel simulator:** a separate website where you write in as a prospective student. The message goes to the CRM's inbound API, which is authenticated with a channel key, not a staff login, and is saved like a real enquiry.
+
+### Safety rules
+
+- Nothing is sent to a real customer. WhatsApp and call buttons open the staff member's own app.
+- Replies are checked in code for:
+  - prices, dates and guarantees
+  - payment confirmations
+  - claims that something has already been done
+  - outside links
+  - a different language from the sender's
+
+  A reply that breaks a rule gets one AI rewrite. If it still fails, it is never sent automatically.
+- A reported payment never marks a contact as Paid; it goes to Support for a person to check.
+- Unknown details stay unknown: a programme the sender didn't name stays "to confirm", and a missing phone stays blank and is flagged.
+- Without an AI key, the app uses a rule-based extractor that is clearly labelled, so it never passes itself off as AI output.
+
+## Tech stack
+
+| Part | Built with |
 |---|---|
-| **CRM client** | React 19, TypeScript, Vite, React Router, TanStack Query, CSS Modules with design tokens, lucide icons |
-| **Channel simulator** | Separate React + TypeScript website that posts to the CRM's inbound channel API with a channel key |
-| **Server** | Node.js 22+, Express 5, layered modules (routes → services → repositories), zod validation, helmet, rate limiting |
-| **Database** | PostgreSQL 16 with versioned SQL migrations |
-| **Auth** | Email + password (bcrypt), JWT session in an httpOnly SameSite cookie, role checks on the API |
-| **AI** | Gemini, Meta or OpenAI structured JSON output with retries, caching and a code-enforced reply policy; labelled rule-based fallback when no key is set |
-| **Tests** | `node:test`: unit tests plus API integration tests against a real PostgreSQL database |
+| CRM client | React 19, TypeScript, Vite, React Router, TanStack Query, CSS Modules with design tokens |
+| Channel simulator | React and TypeScript, a separate static site |
+| API | Node.js 22+, Express 5, zod validation, helmet, rate limiting; organised as routes → services → repositories |
+| Database | PostgreSQL 12 or newer, with versioned SQL migrations |
+| Auth | bcrypt passwords, a JWT in an httpOnly SameSite cookie, role checks and a same-origin check |
+| AI | Meta, Gemini or OpenAI structured JSON output, with retries and server-side validation |
+| Tests | `node:test`: 57 unit and integration tests against a real PostgreSQL database |
+| CI/CD | GitHub Actions: tests on PostgreSQL 12 and 16, and an automatic cPanel deploy over FTPS |
 
-## Quick start
+## Getting started
 
-Requirements: Node.js 22+, and Docker (or your own PostgreSQL 16).
+You need Node.js 22+ and Docker, or your own PostgreSQL.
 
-```bash
-cp .env.example .env
-```
+1. Copy the example settings:
+   ```bash
+   cp .env.example .env
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start PostgreSQL in Docker:
+   ```bash
+   npm run db:up
+   ```
+4. Start everything:
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm install
-```
+Step 4 starts three processes:
 
-```bash
-npm run db:up
-```
+| Process | Address |
+|---|---|
+| API | http://localhost:4000 |
+| CRM | http://localhost:5173 |
+| Channel simulator | http://localhost:5174 |
 
-```bash
-npm run dev
-```
+On first start, the server applies the migrations, creates the demo team and imports the sample enquiries.
 
-Already running PostgreSQL? Skip `npm run db:up`, create a `biai_crm` database and set `DATABASE_URL` in `.env`.
+If you already run PostgreSQL, skip step 3. Create a `biai_crm` database instead and set `DATABASE_URL` in `.env`.
 
-This starts three processes: the API on :4000, the **CRM** on http://localhost:5173 and the **channel simulator** on http://localhost:5174. Open the CRM and pick a demo account; open the simulator in another tab and send a message to watch it arrive. Both sites proxy `/api` to the API in development. On first start the server applies migrations, creates the demo team and imports the 20 sample enquiries.
-
-**Demo accounts** (fictional, password `Admin123!`): `admin@biai.com.bd` (Admin), `tanvir@biai.com.bd` (Admissions), `ayesha@biai.com.bd` (Support), `rahim@biai.com.bd` (Sales).
-
-Production build (one process serves the API and the built client on :4000):
+To run the production build (one process serves the API and the CRM on :4000):
 
 ```bash
 npm run build
@@ -56,134 +109,100 @@ npm run build
 npm start
 ```
 
-**Live deployment (cPanel):** https://biai-crm.boraqs.com and https://biai-simulator.boraqs.com, deployed by GitHub Actions over FTPS. One-time setup: [docs/cpanel-setup.md](docs/cpanel-setup.md).
+### Live AI (optional)
 
-Or run everything in Docker with `JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up --build`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Set one AI provider in `.env`, then restart:
 
-## What it does
+| Provider | Settings |
+|---|---|
+| Meta | `MODEL_API_KEY` and `META_MODEL` |
+| Gemini | `GEMINI_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
 
-- **Pipeline:** New → Contacted → Interested → Paid → Lost. Drag cards between stages (saved immediately, with an activity entry), or switch to a list.
-- **All enquiries:** every contact across Sales, Support, Careers and Spam, filterable by queue, programme, owner and text.
-- **Follow-ups:** contacts with no logged contact for 48 hours, or whose scheduled date has passed, grouped Urgent → Support → Sales, with one-click **Log contact**. Delay is graded (due today, overdue, more than 3 days overdue).
-- **Contact panel:** the conversation (customer messages and the replies BIAI sent) and the reply draft first; **Mark as sent** records a reply sent from WhatsApp or by phone; owner, stage, priority, next action, scheduled follow-up and contact details beside it; an activity history showing who changed what.
-- **New enquiry:** paste a message (or pick a supplied sample) → extracted details and a draft reply → review and save. A matching phone number joins the existing contact; blank phones never merge.
-- **Weekly brief:** calculated totals for any seven Dhaka days, programme interest, support cases and three priorities (live AI or rules), copyable as text.
-- **Automation:** manual review, or automatic saving of complete new sales enquiries with every exception held for a person. Optional **safe auto-reply** for inbound channel messages (off by default): only confident, policy-clean live-AI answers to sales questions are sent, at most two in a row; everything else is held as a draft with the reason logged.
-- **Channel simulator (separate website):** write in as a prospective student on WhatsApp, Messenger, a Facebook comment, the website form or a call note. The message goes to the CRM's inbound channel API (authenticated with a channel key, not a staff login) and is extracted, routed and saved like a real enquiry. With auto-reply off, the drafted reply is shown as a held suggestion; with safe auto-reply on, eligible replies arrive in the chat and are recorded in the CRM conversation. Linked from the CRM sidebar.
-- **Team:** members and roles. Admins add members, delete contacts and restore the sample data.
-
-### Deliberate boundaries
-
-- Nothing is sent to a real customer. Auto-reply (opt-in) only answers the simulated channel; WhatsApp and call buttons open the person's own app.
-- Every reply is checked in code for prices, dates, guarantees, payment confirmations, claims of actions taken, outside links and wrong script; a violation triggers one AI rewrite, and anything still failing is never auto-sent.
-- Follow-up messages are analysed with the conversation and never erase known facts: a programme or name is only filled in, and a contact is only ever escalated to Support.
-- A reported payment never marks a contact Paid; support cases always need a person.
-- Replies never promise prices, dates, venues, refunds or approvals; the team confirms those.
-- Unknown programmes stay "to confirm"; missing phones stay blank and are flagged.
-- Without an AI key, the 20 supplied messages use labelled, human-reviewed interpretations, and other text uses a clearly labelled rule-based extractor. Nothing pretends to be live AI.
-
-## Project structure
-
-```
-aibi-crm/
-├── client/                      CRM web app (React + TypeScript)
-│   ├── index.html
-│   ├── vite.config.ts           dev proxy /api → :4000, "@" alias
-│   └── src/
-│       ├── app/                 App root, router, 404
-│       ├── api/                 typed fetch client and endpoint functions
-│       ├── assets/              brand logo and local fonts
-│       ├── components/
-│       │   ├── ui/              design-system primitives (Button, Badge, Field, Dialog, Sheet, Menu, Toast…)
-│       │   └── layout/          AppShell, Sidebar, PageHeader, Logo
-│       ├── features/            one folder per product area
-│       │   ├── auth/            session provider, route guards, sign-in page
-│       │   ├── pipeline/        Kanban board and page
-│       │   ├── enquiries/  followups/  brief/  automation/  team/
-│       │   ├── contact/         contact panel: conversation, reply, details, activity
-│       │   ├── intake/          New enquiry dialog
-│       │   └── leads/           shared table, toolbar, filters and badges
-│       ├── hooks/               TanStack Query hooks, URL-driven contact panel
-│       ├── lib/                 formatting (Asia/Dhaka), follow-up rules, helpers
-│       ├── styles/              design tokens and base styles
-│       └── types/               shared TypeScript types
-├── simulator/                   Channel simulator website (React + TypeScript, deployed separately)
-│   ├── .env.example             VITE_API_URL, VITE_CHANNEL_KEY
-│   └── src/
-│       ├── App.tsx              connection, state and layout
-│       ├── components/          SenderPanel, ChatWindow, ResultPanel
-│       ├── lib/                 inbound channel API client, channel metadata
-│       └── styles/              same design tokens as the CRM
-├── server/                      Express API
-│   ├── src/
-│   │   ├── index.js             bootstrap: connect, migrate, seed, listen, graceful shutdown
-│   │   ├── app.js               Express app and dependency wiring
-│   │   ├── config/env.js        validated configuration
-│   │   ├── db/                  pool, migration runner, migrations/*.sql, seed, CLI
-│   │   ├── middleware/          authentication, roles, validation, same-origin, errors
-│   │   ├── modules/             auth, users, leads, intake, automation, reports, channels, meta, admin
-│   │   │                        (each: *.routes.js → *.service.js → *.repository.js)
-│   │   ├── domain/lead.js       business rules: stages, phone normalisation, 48-hour rule, validation
-│   │   ├── services/ai/         provider calls, prompts, reviewed samples, rule-based fallback
-│   │   ├── data/                the 20 supplied sample enquiries
-│   │   └── utils/
-│   ├── scripts/                 evaluate-ai.js (live AI regression), bundle.mjs (cPanel bundle)
-│   └── tests/                   unit/ and integration/ (real PostgreSQL)
-├── docs/                        deployment, cPanel setup, QA, brand notes, AI evaluation evidence
-├── .github/workflows/           ci.yml (tests on PostgreSQL 12 + 16), deploy-cpanel.yml (FTPS deploy)
-├── docker-compose.yml           PostgreSQL (and optional app container)
-└── Dockerfile                   multi-stage production image
-```
+API keys stay on the server and are never sent to the browser. If an AI call fails, the app falls back to the rule-based extractor and shows `Live AI unavailable`. To check AI quality, `npm run evaluate:ai -w server` runs the 20 samples against the live model and reports the results.
 
 ## Scripts
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | API (watch mode), CRM and channel simulator together |
-| `npm run dev:crm` | API and CRM only |
-| `npm run build` | Type-check and build the CRM and the simulator |
-| `npm start` | Production server: API + built client on :4000 |
-| `npm test` | Server unit and integration tests |
-| `npm run typecheck` | TypeScript check of both web apps |
+| `npm run dev` | Run the API, CRM and simulator together |
+| `npm run build` | Type-check and build both web apps |
+| `npm start` | Run the production server |
+| `npm test` | Run the server's unit and integration tests |
 | `npm run check` | Type-check, build and test |
-| `npm run bundle` | Build the cPanel deploy folder `deploy/crm` (API in one file + web app) |
+| `npm run bundle` | Build the cPanel deploy folder `deploy/crm` |
 | `npm run db:up` | Start PostgreSQL in Docker |
-| `npm run db:migrate` / `db:seed` / `db:reset` | Apply migrations / seed if empty / restore the 20 samples |
-| `npm run evaluate:ai -w server` | Run the live AI regression (20 paid calls) |
+| `npm run db:migrate` / `db:seed` / `db:reset` | Apply migrations, seed an empty database, or restore the sample data |
 
-Integration tests need a database. They use `TEST_DATABASE_URL` (default: the `biai_crm_test` database on the Docker Postgres) and are skipped with a clear message if none is reachable. **The test run drops and recreates the schema of that database,** so never point it at real data.
+The integration tests use `TEST_DATABASE_URL`, which defaults to `biai_crm_test` on the Docker PostgreSQL. They are skipped if that database isn't reachable. **They wipe and recreate that database**, so never point it at real data. To create it:
 
 ```bash
 docker compose exec db createdb -U biai biai_crm_test
 ```
 
-## API overview
+## Project structure
 
-All routes are under `/api`. `/channels/*` authenticates with the `X-Channel-Key` header; everything else except `/health` and `/auth/login` needs a signed-in staff session. Errors are `{ "error": { "message": "…" } }`.
+```
+aibi-crm/
+├── client/                  CRM web app
+│   └── src/
+│       ├── app/             root, router
+│       ├── api/             typed API client
+│       ├── components/      ui/ (design system) and layout/ (shell, sidebar)
+│       ├── features/        one folder per area: pipeline, enquiries, followups,
+│       │                    contact, intake, brief, automation, team, auth
+│       ├── hooks/  lib/  styles/  types/
+├── simulator/               channel simulator website
+│   └── src/                 App, components/, lib/ (inbound API client), styles/
+├── server/                  Express API
+│   ├── src/
+│   │   ├── modules/         auth, users, leads, intake, automation, reports,
+│   │   │                    channels, meta, admin: each *.routes → *.service → *.repository
+│   │   ├── domain/          business rules: stages, phone numbers, 48-hour rule
+│   │   ├── services/ai/     provider calls, prompts, reply policy, rule-based fallback
+│   │   ├── db/              pool, migrations, seed
+│   │   ├── middleware/      auth, roles, validation, errors
+│   │   └── config/          validated settings
+│   ├── scripts/             cPanel bundle, AI evaluation
+│   └── tests/               unit/ and integration/
+├── docs/                    deployment, cPanel setup, QA report, brand notes
+└── .github/workflows/       ci.yml, deploy-cpanel.yml
+```
 
-| Method & path | Purpose | Role |
+## API
+
+Every route is under `/api`. The `/channels/*` routes need the `X-Channel-Key` header. Every other route except `/health` and `/auth/login` needs a signed-in staff session.
+
+| Route | Purpose | Who can use it |
 |---|---|---|
-| `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` | Session | — |
-| `GET /meta` | Stages, queues, programmes, channels, samples, AI mode | any |
-| `GET /leads`, `GET /leads/:id` | Contacts with messages and activity | any |
-| `PATCH /leads/:id` | Edit stage, owner, follow-up, details, reply | any |
-| `POST /leads/:id/contact` | Log a completed contact | any |
-| `POST /leads/:id/draft` | Draft a new reply | any |
+| `POST /auth/login` · `POST /auth/logout` · `GET /auth/me` | Sign in, sign out, current session | anyone |
+| `GET /leads` · `GET /leads/:id` · `PATCH /leads/:id` | List, view and edit contacts | any staff |
+| `POST /leads/:id/contact` · `POST /leads/:id/draft` | Log a contact; draft a reply | any staff |
 | `DELETE /leads/:id` | Delete a contact | Admin |
-| `POST /intake/analyze`, `POST /intake` | Extract details; save a reviewed enquiry | any |
-| `GET /automation`, `POST /automation/jobs`, `POST /automation/jobs/:id/review` | Automated intake | any |
-| `PUT /automation/settings` | Manual / automatic mode | Admin, Admissions |
-| `GET /reports/weekly?end=YYYY-MM-DD` | Weekly brief | any |
-| `GET /channels/info`, `POST /channels/inbound` | Inbound channel API used by the simulator site (CORS limited to `CHANNEL_ALLOWED_ORIGINS`) | channel key |
-| `GET /users`, `POST /users` | Team list; add a member | any / Admin |
-| `POST /admin/reset-demo` | Restore the 20 sample enquiries | Admin |
+| `POST /intake/analyze` · `POST /intake` | Extract details from a message; save a reviewed enquiry | any staff |
+| `GET /automation` · `POST /automation/jobs/:id/review` | Automated intake and its review queue | any staff |
+| `PUT /automation/settings` | Switch between manual and automatic mode | Admin, Admissions |
+| `GET /reports/weekly` | Weekly brief | any staff |
+| `GET /channels/info` · `POST /channels/inbound` | Inbound channel API used by the simulator | channel key |
+| `GET /users` · `POST /users` | List the team; add a member (Admin only) | any staff / Admin |
+| `POST /admin/reset-demo` | Restore the sample data | Admin |
 
-## Live AI
+## Deployment
 
-Set one provider in `.env` and restart: `GEMINI_API_KEY` (+ `GEMINI_MODEL`), or `MODEL_API_KEY` + `META_MODEL` (Meta), or `OPENAI_API_KEY` + `OPENAI_MODEL`. If several are set, Gemini wins, then Meta. Keys stay on the server and are never sent to the browser. The simulator shows which mode is active, and `npm run evaluate:ai -w server` reports extraction scores, policy-clean replies, confidence and which samples would be auto-answered.
+Every push to `main` that changes the app is deployed by GitHub Actions. The workflow:
 
-Extraction uses a strict JSON schema and server-side validation. If a live call fails, the rule-based fallback is used and the result says `Live AI unavailable` so nobody mistakes it for AI output. Weekly totals are always calculated by code; the model only writes the three priorities.
+1. Builds both sites and bundles the API into one file.
+2. Uploads them to cPanel over FTPS.
+3. Restarts the Node.js app.
+4. Checks that both live sites respond.
 
-## Documentation
+The one-time server setup is in [docs/cpanel-setup.md](docs/cpanel-setup.md). For Docker and other hosts, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-[Deployment](docs/DEPLOYMENT.md) · [cPanel setup](docs/cpanel-setup.md) · [QA report](docs/QA.md) · [Brand notes](docs/BRAND.md)
+## Limitations
+
+- There are no live WhatsApp or Facebook connections. The channel simulator stands in for them.
+- The app never verifies payments.
+- Reminders appear in the app only; there are no emails or push notifications.
+- The demo accounts share a published password. Change it before any real use.
+
+More detail: [QA report](docs/QA.md) · [Brand notes](docs/BRAND.md)

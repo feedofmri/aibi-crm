@@ -8,7 +8,7 @@ Validated on 5 November 2026 with Node.js 22 and PostgreSQL 16 on Linux, after t
 |---|---|
 | `npm run typecheck` (CRM and simulator, TypeScript strict) | passed |
 | `npm run build` (CRM and simulator) | passed |
-| `npm test` (server, against a real PostgreSQL test database) | **37 passed, 0 failed** |
+| `npm test` (server, against a real PostgreSQL test database) | **57 passed, 0 failed** |
 
 What the tests cover:
 
@@ -27,7 +27,7 @@ Run end to end against PostgreSQL in Chromium at 1440 × 900 and iPhone 13 size:
 - Pipeline board with all five stages visible at laptop width; list view; filters; stage change by drag and drop.
 - All enquiries with queue tabs and counts; Follow-ups grouped Urgent → Support → Sales with aligned columns and **Log contact**.
 - Contact panel: conversation first, reply composer, activity, details form with a save bar that appears only for unsaved changes; support and spam callouts.
-- New enquiry: Tahmina's supplied message → reviewed sample with missing-phone warning and Bangla reply → saved to the existing contact.
+- New enquiry: Tahmina's sample message → reviewed sample with missing-phone warning and Bangla reply → saved to the existing contact.
 - Weekly brief, Automation (processing all 20 samples, reviewing an exception), Team.
 - Channel simulator as its own site on :5174: connection status, WhatsApp and Messenger conversations, drafted reply bubbles, result card with a link into the CRM; the new contact appears in the CRM pipeline; the CRM sidebar links to the simulator.
 - Mobile: navigation drawer, stacked stat cards, full-screen contact panel, simulator with the chat first.
@@ -39,11 +39,11 @@ Run end to end against PostgreSQL in Chromium at 1440 × 900 and iPhone 13 size:
 - The simulator was built for production (CRM URL and channel key compiled in) and served from a different origin; the full browser run (sign-in, every CRM page, intake, follow-ups, automation, simulator → CRM) passed with no console errors besides the expected pre-sign-in session check.
 - The deploy workflow's FTPS upload commands were run against a local FTPS server: stale files were deleted, `.htaccess` and `stderr.log` were kept, and the uploaded copy started and passed the workflow's smoke tests (health, both web apps, CORS, wrong key refused, data needs a session).
 - PostgreSQL 12 (common on cPanel, lacks a built-in `gen_random_uuid()`): CI runs the full suite on PostgreSQL 12 and 16. The first CI run caught that the fallback's ids were not valid version-4 UUIDs (the API rejects those); the fallback now produces proper v4 ids, verified with 2,000 samples and the full suite running on the fallback.
-- Not yet verified on the real cPanel server: that needs the one-time setup in `cpanel-setup.md` and the GitHub secrets.
+- Deployed to cPanel (https://biai-crm.boraqs.com and https://biai-simulator.boraqs.com) by the GitHub Actions workflow, whose smoke tests passed: health, both web apps, the channel key and CORS.
 
 ## Real AI regression check (earlier version, same prompts)
 
-The extraction prompt was run against all 20 supplied messages with **Meta Model API / muse-spark-1.3**. All 20 calls succeeded. Name, phone, programme, queue and language each matched our reviewed baseline on **20/20** messages. See `evidence/live-ai-evaluation.json` and `evidence/live-reply-check.json`.
+The extraction prompt was run against all 20 sample messages with **Meta Model API / muse-spark-1.3**. All 20 calls succeeded. Name, phone, programme, queue and language each matched our reviewed baseline on **20/20** messages. See `evidence/live-ai-evaluation.json` and `evidence/live-reply-check.json`.
 
 The baseline is our interpretation of the sample messages, not official BIAI labels. The same samples informed prompt development, so this is a regression check, not a held-out accuracy benchmark. Extraction agreement does not measure reply quality; replies were read for relevance, language and unsupported claims. Re-run with `npm run evaluate:ai -w server` after configuring a key.
 
