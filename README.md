@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="client/src/assets/brand/biai-logo.png" alt="BIAI" height="48">
+</p>
+
 # BIAI Admissions CRM
 
 An admissions and enquiry CRM for Bangladesh AI (BIAI), with a separate **channel simulator** website for sending test enquiries into it.
@@ -13,6 +17,12 @@ Enquiries arrive from WhatsApp, Facebook, the website and phone calls, in Bangla
 | Demo sign-in | `admin@biai.com.bd` / `Admin123!` (also `tanvir@`, `ayesha@`, `rahim@`; same password) |
 
 The CRM is seeded with 20 fictional sample messages, which become 19 contacts.
+
+## Video walkthrough
+
+[![Watch the walkthrough on Loom](https://cdn.loom.com/sessions/thumbnails/a3da2ead0a5d477f958818aa3ac21d91-with-play.gif)](https://www.loom.com/share/a3da2ead0a5d477f958818aa3ac21d91)
+
+[Watch the walkthrough on Loom](https://www.loom.com/share/a3da2ead0a5d477f958818aa3ac21d91)
 
 | Pipeline | Contact |
 |---|---|
